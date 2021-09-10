@@ -23,7 +23,7 @@ Each participant reached for **3 objects**:
 * a large-sized cube with a 7.5 cm edge length (L) 
 
 <p align="center">
-<img src="objects.png" width=400></img>
+<img src="assets/objects.png" width=400></img>
 </p>
 
 The blue cube is the small object, the red cube is the medium object and the green cube is the large object. <br/> <br/>
@@ -67,7 +67,7 @@ Therefore, 24 joints are listed in total in each csv file:
 <br/><br/>
 
 <p align="center">
-<img src="openpose_keypoints.png"></img>
+<img src="assets/openpose_keypoints.png"></img>
 </p>
 
 The following names are used to refer to the corresponding joints of the images above:
