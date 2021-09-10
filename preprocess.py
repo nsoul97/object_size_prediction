@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import re
 import random
+import numpy as np
 
 def read_dataset(path="dataset/data/", joints=None, attr=None):
     """Read all the movements of the dataset and store them in a dictionary. Choose which joints to read for each movements and which attributes to read for each joint.
@@ -78,5 +79,21 @@ def one_out_kfold(data):
     part_movements = {f"P{p}":[] for p in range(1,9)}
     for mov in data.keys():
         part_movements[mov[:2]].append(mov)
-    partitions = part_movements.values()
+    partitions = list(part_movements.values())
     return partitions
+
+def setup_train_test_split(partitions):
+    """Yield one of the k training-test set splits based on the k input partitions. When this generator is called for the i-th time, the i-th partition is selected as test set and the other partitions
+       are concatenated to form the the training set.
+
+    Args:
+        partitions (list): A list of lists. Each of the nested lists represents a partition and contains the movement's filenames.
+
+    Yields:
+        split (tuple): A tuple of 2 lists. The first list contains the filenames of the training set and the second list contains the filenames of the testing set.
+    """
+    for i in range(len(partitions)):
+        train_set = list(np.concatenate([partitions[j] for j in range(len(partitions)) if i!=j]))
+        test_set = partitions[i]
+        split = (train_set, test_set)
+        yield split
