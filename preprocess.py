@@ -13,7 +13,7 @@ def read_dataset(path="dataset/data/", joints=None, attr=None):
         attr (list, optional): The attributes (x,y,prob) of interest for all the joints. Defaults to None. In this case all 3 attributes are used for all the joints.
 
     Returns:
-        data (dictionary): A dictionary with the movement filename as the key and a pandas dataframe containing the corresponding skeletal data of the movement as the value.
+        data (dictionary): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding skeletal data of the movement as the value.
     """
     if joints:
         if attr is None:
@@ -58,14 +58,14 @@ def clean_data(mov_data):
     return mov_data
 
 
-def cut_movement(cleaned_data, mov_data, tail=0, head=0):
+def cut_movement(cleaned_data, mov_data, tail, head):
     """Identify and isolate the data that correspond to the grasping phase of the movement and the data that correspond to the given number of frames before (tail) and after (head) the grasping phase.
 
     Args:
         cleaned_data (pd.DataFrame): A DataFrame containing the skeletal data of a single movement of the dataset with the frames with noisy wrist y-coordinates filtered out.
         mov_data (pd.DataFrame): A DataFrame containing the skeletal data of the same movement of the dataset, as given by OpenPose.
-        tail (int, optional): An integer that indicates how many conseutive frames before the grasping phase to return. If negative or not given, the value defaults to 0.
-        head (int, optional): An integer that indicates how many conseutive frames after the grasping phase to return. If negative or not given, the value defaults to 0.
+        tail (int): An integer that indicates how many conseutive frames before the grasping phase to return. If negative, the value defaults to 0.
+        head (int): An integer that indicates how many conseutive frames after the grasping phase to return. If negative, the value defaults to 0.
 
     Returns:
         mov_data [pd.DataFrame]: A DataFrame containing the skeletal data of the grasping phase of the given movement and the skeletal data of the given number of frames before and after the 
@@ -97,3 +97,17 @@ def cut_movement(cleaned_data, mov_data, tail=0, head=0):
     end_ind = mov_data[mov_data["Time"] == end_time].index[0] + max(0, head)                # Add the given number of frames before the grasping phase.
 
     return mov_data.iloc[start_ind:end_ind]
+
+def preprocess_dataset(data, tail=0, head=0):
+    """Preprocess all the movements of the dataset in order to identify their grasping phase. Update the data dictionary, so that it contains a movement's name as key and a pd.DataFrame with the
+       skeletal data of the movement's grasping phase and the skeletal data of the given number of frames before (tail) and after (head) the grasping movement as value.  
+
+    Args:
+        data (dictionary): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding skeletal data of the movement as the value.
+        tail (int, optional): An integer that indicates how many conseutive frames before the grasping phase to return. If negative or not given, the value defaults to 0.
+        head (int, optional): An integer that indicates how many conseutive frames after the grasping phase to return. If negative or not given, the value defaults to 0.
+    """
+    for mov_name, mov_data in data.items():
+        cleaned_data = clean_data(mov_data)
+        mov_data = cut_movement(cleaned_data, mov_data, tail, head)
+        data[mov_name] = mov_data
