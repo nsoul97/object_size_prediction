@@ -1,3 +1,7 @@
+import random
+import numpy as np
+
+
 def all_in_kfold(data):
     """Split the movements into 10 partitions of approximately equal size (+-1) according to the "all-in" strategy. The movements of each partition are selected randomly.
        The partitions have approximately the same number of movements (+-1) for a given (participant, object) pair.
