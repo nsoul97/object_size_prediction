@@ -5,7 +5,7 @@ import numpy as np
 
 
 def read_dataset(path="dataset/data/", joints=None, attr=None):
-    """Read all the movements of the dataset and store them in a dictionary. Choose which joints to read for each movements and which attributes to read for each joint.
+    """ Read all the movements of the dataset and store them in a dictionary. Choose which joints to read for each movements and which attributes to read for each joint.
 
     Args:
         path (str, optional): The path of the movement dataset. Defaults to "dataset/data/".
@@ -33,7 +33,7 @@ def read_dataset(path="dataset/data/", joints=None, attr=None):
 
 
 def clean_data(mov_data):
-    """Identify the frames with noisy right wrist y-coordinates' detections and filter them out.
+    """ Identify the frames with noisy right wrist y-coordinates' detections and filter them out.
 
     Args:
         mov_data (pd.DataFrame): A DataFrame containing the skeletal data of a single movement of the dataset, as given by OpenPose.
@@ -58,12 +58,12 @@ def clean_data(mov_data):
     return mov_data
 
 
-def cut_movement(cleaned_data, mov_data, tail, head):
-    """Identify and isolate the data that correspond to the grasping phase of the movement and the data that correspond to the given number of frames before (tail) and after (head) the grasping phase.
+def cut_movement( mov_data, tail, head):
+    """ Identify and isolate the data that correspond to the grasping phase of the movement and the data that correspond to the given number of frames before (tail) and after (head) the grasping phase.
+        The skeletal data of the head and tail frames are to be used only for preprocessing and feature engineering purposes.
 
     Args:
-        cleaned_data (pd.DataFrame): A DataFrame containing the skeletal data of a single movement of the dataset with the frames with noisy wrist y-coordinates filtered out.
-        mov_data (pd.DataFrame): A DataFrame containing the skeletal data of the same movement of the dataset, as given by OpenPose.
+        mov_data (pd.DataFrame): A DataFrame containing the skeletal data of a single movement of the dataset with the frames with noisy wrist y-coordinates filtered out.
         tail (int): An integer that indicates how many conseutive frames before the grasping phase to return. If negative, the value defaults to 0.
         head (int): An integer that indicates how many conseutive frames after the grasping phase to return. If negative, the value defaults to 0.
 
@@ -76,7 +76,7 @@ def cut_movement(cleaned_data, mov_data, tail, head):
     START_STD = 2.0
     STOP_STD = 1.5
 
-    coords = cleaned_data["RWrist.y"].to_numpy()
+    coords = mov_data["RWrist.y"].to_numpy()
 
     wrist_std = []                                                                          # Calculate the standard deviation of the right wrist's y-coordinate for a window of 10 frames.
     for i in range(len(coords)):
@@ -85,22 +85,20 @@ def cut_movement(cleaned_data, mov_data, tail, head):
     
     wrist_std = np.array(wrist_std)                                         
     peak = np.argmax(wrist_std)                                                             # Identify the peak of the standard deviation distribution.
-    start_ind = np.where(wrist_std[:peak] > START_STD)[0]                                   # The grasping movement starts the first time the standard deviation becomes over 2.
-    end_ind = np.where(wrist_std[peak:] < STOP_STD)[0]                                      # The grasping movement ends after the peak of the standard deviation, the first time the standard deviation becomes less than 1.5.
+    start_ind = np.where(wrist_std > START_STD)[0][0]                                       # The grasping movement starts the first time the standard deviation becomes over 2.
+    end_ind = peak + np.where(wrist_std[peak:] < STOP_STD)[0][0]                            # The grasping movement ends after the peak of the standard deviation, the first time the standard deviation becomes less than 1.5.
 
-    start = np.min(np.where(wrist_std[:peak] > START_STD)) + WINDOW - 1                     # The standard deviation is assigned as a measure of speed of the last frame of the window.
-    end = peak + np.min(np.where(wrist_std[peak:] < STOP_STD)) + WINDOW -1
-
-    start_time, end_time = cleaned_data.iloc[[start,end]]["Time"]
-
-    start_ind = max(0, mov_data[mov_data["Time"] == start_time].index[0] - max(0,tail))     # Add the given number of frames before the grasping phase.
-    end_ind = mov_data[mov_data["Time"] == end_time].index[0] + max(0, head)                # Add the given number of frames before the grasping phase.
+    start_ind = start_ind + WINDOW - 1                                                      # The standard deviation is assigned as a measure of speed of the last frame of the window.
+    end_ind = end_ind + WINDOW -1
+    
+    start_ind = max(0, start_ind - max(0,tail))                                             # Add the given number of frames before the grasping phase.
+    end_ind = end_ind + max(0, head)                                                        # Add the given number of frames before the grasping phase.
 
     return mov_data.iloc[start_ind:end_ind]
 
 def preprocess_dataset(data, tail=0, head=0):
-    """Preprocess all the movements of the dataset in order to identify their grasping phase. Update the data dictionary, so that it contains a movement's name as key and a pd.DataFrame with the
-       skeletal data of the movement's grasping phase and the skeletal data of the given number of frames before (tail) and after (head) the grasping movement as value.  
+    """ Preprocess all the movements of the dataset in order to identify their grasping phase. Update the data dictionary, so that it contains a movement's name as key and a pd.DataFrame with the
+        skeletal data of the movement's grasping phase and the skeletal data of the given number of frames before (tail) and after (head) the grasping movement as value.  
 
     Args:
         data (dictionary): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding skeletal data of the movement as the value.
@@ -108,6 +106,6 @@ def preprocess_dataset(data, tail=0, head=0):
         head (int, optional): An integer that indicates how many conseutive frames after the grasping phase to return. If negative or not given, the value defaults to 0.
     """
     for mov_name, mov_data in data.items():
-        cleaned_data = clean_data(mov_data)
-        mov_data = cut_movement(cleaned_data, mov_data, tail, head)
+        mov_data = clean_data(mov_data)
+        mov_data = cut_movement(mov_data, tail, head)
         data[mov_name] = mov_data
