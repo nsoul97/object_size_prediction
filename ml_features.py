@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import scipy.stats
 import copy
 
 
@@ -179,8 +180,22 @@ def calculate_wrist_plane_speed(mov_data):
     wrist_xy_speed = dx/dt
     return wrist_xy_speed
 
+
+def calculate_norm_time(mov_data):
+    """Calculate the normalized time (movement completion percentage) for each of the frames of the grasping movement based on the absolute time of each frame ("Time" column).
+
+    Args:
+        mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
+    """
+
+    WINDOW = 10
+
+    abs_time = mov_data["Time"].iloc[WINDOW:].to_numpy()
+    norm_time = 100.0 * (abs_time - abs_time[0]) / (abs_time[-1] - abs_time[0])
+    return norm_time
+
 def mov_feature_engineering(mov_data, feature_set):
-    """ Engineer the given kinematic features for each of the frames of the grasping movement. 
+    """ Engineer the given kinematic features and the normalized time (movement completion percentage) for each of the frames of the grasping movement.
 
     Args:
         mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
@@ -193,7 +208,8 @@ def mov_feature_engineering(mov_data, feature_set):
     WINDOW = 10
 
     feature_dict = dict()
-    feature_dict["Time"] = mov_data["Time"].iloc[WINDOW:]
+    feature_dict["abs_time"] = mov_data["Time"].iloc[WINDOW:]
+    feature_dict["norm_time"] = calculate_norm_time(mov_data)
     if "thumb-index aperture" in feature_set:   feature_dict["thumb-index aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RIndex4FingerTip")
     if "thumb-middle aperture" in feature_set:  feature_dict["thumb-middle aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RMiddle4FingerTip")
     if "index-middle aperture" in feature_set:  feature_dict["index-middle aperture"] = calculate_aperture(mov_data, "RIndex4FingerTip", "RMiddle4FingerTip")
@@ -207,10 +223,11 @@ def mov_feature_engineering(mov_data, feature_set):
     if "wrist xy-speed" in feature_set: feature_dict["wrist-xy speed"] = calculate_wrist_plane_speed(mov_data)
 
     features_df = pd.DataFrame(feature_dict)
-    return feature_df
+    return features_df
 
 def feature_engineering(data, feature_set):
-    """ Engineer the given kinematic features for the grasping phase of all the movements of the dataset. Uupdate the data dictionary by replacing the skeletal data with the engineered kinematic features.
+    """ Engineer the given kinematic features for the grasping phase of all the movements of the dataset. Uupdate the data dictionary by replacing the skeletal data with the engineered kinematic features
+        and the absolute time with normalized time.
 
     Args:
         data (dictionary): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding skeletal data of the grasping movement and the skeletal data of 9 frames
@@ -220,3 +237,60 @@ def feature_engineering(data, feature_set):
     for mov_name, mov_data in data.items():
         mov_data = mov_feature_engineering(mov_data, feature_set)
         data[mov_name] = mov_data
+
+
+def feature_statistics_extraction(data):
+    """ For each kinematic feature that was engineered and for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals extract the summary statistics of the kinematic feature values that occured in this
+        interval. For each kinematic feature the following summary statistics are calculated:
+        - the minimum (min), the maximum (max), the average (mean) and the standard deviation (std) of the kinematic feature values.
+        - the absolute time that the maximum (tmax) and the minimum (tmin) of the kinematic feature values occured.
+        - the slope of a linear least-squares regression which is calculated based on the absolute time and the kinematic feature values. 
+        Finally the number of frames that were captured during this movement completion interval is used as a summary statistic.
+
+        The NaN values are replaced by 0.
+
+    Args:
+        data (dict): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding kinematic features of the grasping movement and the skeletal data of 9 frames
+                     before the beginning of the movement as the value.
+
+    Returns:
+        partial_data (dict): A dictionary with a "<movement filename>_<movement completion percentage>" string as key and a 1-dimensional numpy array containing the summary statistics of the enigeered kinematic features for
+                             the corresponding movement and movement completion percentage. If F kinematic features were engineered, the numpy arrays have size (1+7*F,).
+    """
+
+    partial_data = dict()
+    for mov_compl in [20, 40, 60, 80, 100]:
+        
+        for mov_name, mov_data in data.items():
+            partial_mov_data = mov_data[mov_data["norm_time"] <= mov_compl]
+            points_no = partial_mov_data.shape[0]
+
+            non_time_data = partial_mov_data[partial_mov_data.columns.difference(['abs_time', 'norm_time'])]
+            
+            features_min = non_time_data.min(axis=0, skipna=True) 
+            features_max = non_time_data.max(axis=0, skipna=True)
+            features_mean = non_time_data.mean(axis=0, skipna=True)
+            features_std = non_time_data.std(axis=0, ddof=0, skipna=True)
+
+            features_tmax = non_time_data.set_index(partial_mov_data['abs_time']).idxmax(axis=0, skipna=True)
+            features_tmin = non_time_data.set_index(partial_mov_data['abs_time']).idxmin(axis=0, skipna=True)
+            
+            slopes = []
+            mask = non_time_data == non_time_data
+            for feature in non_time_data.columns:
+                feature_mask = mask[feature]
+                if feature_mask.sum(axis=0) > 1:
+                    t = partial_mov_data["abs_time"][feature_mask]
+                    f = non_time_data[feature][feature_mask]
+                    slope, _, _, _, _ = scipy.stats.linregress(t,f)
+                else:
+                    slope = 0
+                slopes.append(slope)
+
+            features_stats = np.r_[points_no, features_mean, features_std, features_max, features_min, features_tmax, features_tmin, slopes]
+            np.nan_to_num(features_stats, copy=False)
+
+            partial_data[f"{mov_name}_{mov_compl}"] = features_stats
+
+    return partial_data
+            
