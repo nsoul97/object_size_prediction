@@ -194,12 +194,17 @@ def calculate_norm_time(mov_data):
     norm_time = 100.0 * (abs_time - abs_time[0]) / (abs_time[-1] - abs_time[0])
     return norm_time
 
-def mov_feature_engineering(mov_data, feature_set):
+def mov_feature_engineering(mov_data):
     """ Engineer the given kinematic features and the normalized time (movement completion percentage) for each of the frames of the grasping movement.
+        The kinematic features that are engineered are the following:
+        - thumb-index apertures, thumb-middle apertures, index-middle apertures
+        - wrist x-coordinates, wrist y-coordinates
+        - wrist x-standard deviation, wrist y-standard deviation, wrist xy-standard distance
+        - wrist x-speed, wrist y-speed, wrist xy-speed
+        The information regarding the absolute time of each frame is also preserved.
 
     Args:
         mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
-        feature_set (set): A set containing the names of the kinematic features to be engineered.
 
     Returns:
         feature_df (pd.DataFrame): A pd.DataFrame containing a timestamp and the engineered kinematic features for each of the frames of the graspin movement.
@@ -210,37 +215,36 @@ def mov_feature_engineering(mov_data, feature_set):
     feature_dict = dict()
     feature_dict["abs_time"] = mov_data["Time"].iloc[WINDOW:]
     feature_dict["norm_time"] = calculate_norm_time(mov_data)
-    if "thumb-index aperture" in feature_set:   feature_dict["thumb-index aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RIndex4FingerTip")
-    if "thumb-middle aperture" in feature_set:  feature_dict["thumb-middle aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RMiddle4FingerTip")
-    if "index-middle aperture" in feature_set:  feature_dict["index-middle aperture"] = calculate_aperture(mov_data, "RIndex4FingerTip", "RMiddle4FingerTip")
-    if "wrist x-coord" in feature_set: feature_dict["wrist x-coord"] = mov_data["RWrist.x"].iloc[WINDOW:]
-    if "wrist y-coord" in feature_set: feature_dict["wrist y-coord"] = mov_data["RWrist.y"].iloc[WINDOW:]
-    if "wrist x-std_dev" in feature_set: feature_dict["wrist x-std_dev"] = calculate_wrist_stddev(mov_data, "x")
-    if "wrist y-std_dev" in feature_set: feature_dict["wrist y-std_dev"] = calculate_wrist_stddev(mov_data, "y")
-    if "wrist xy-std_dist" in feature_set: feature_dict["wrist xy-std_dist"] = calculate_wrist_stddist(mov_data)
-    if "wrist x-speed" in feature_set: feature_dict["wrist x-speed"] = calculate_wrist_axis_speed(mov_data, "x")
-    if "wrist y-speed" in feature_set: feature_dict["wrist-y speed"] = calculate_wrist_axis_speed(mov_data, "y")
-    if "wrist xy-speed" in feature_set: feature_dict["wrist-xy speed"] = calculate_wrist_plane_speed(mov_data)
+    feature_dict["thumb-index aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RIndex4FingerTip")
+    feature_dict["thumb-middle aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RMiddle4FingerTip")
+    feature_dict["index-middle aperture"] = calculate_aperture(mov_data, "RIndex4FingerTip", "RMiddle4FingerTip")
+    feature_dict["wrist x-coord"] = mov_data["RWrist.x"].iloc[WINDOW:]
+    feature_dict["wrist y-coord"] = mov_data["RWrist.y"].iloc[WINDOW:]
+    feature_dict["wrist x-std_dev"] = calculate_wrist_stddev(mov_data, "x")
+    feature_dict["wrist y-std_dev"] = calculate_wrist_stddev(mov_data, "y")
+    feature_dict["wrist xy-std_dist"] = calculate_wrist_stddist(mov_data)
+    feature_dict["wrist x-speed"] = calculate_wrist_axis_speed(mov_data, "x")
+    feature_dict["wrist-y speed"] = calculate_wrist_axis_speed(mov_data, "y")
+    feature_dict["wrist-xy speed"] = calculate_wrist_plane_speed(mov_data)
 
     features_df = pd.DataFrame(feature_dict)
     return features_df
 
-def feature_engineering(data, feature_set):
-    """ Engineer the given kinematic features for the grasping phase of all the movements of the dataset. Uupdate the data dictionary by replacing the skeletal data with the engineered kinematic features
-        and the absolute time with normalized time.
+def feature_engineering(data):
+    """ Engineer the given kinematic features for the grasping phase of all the movements of the dataset. Update the data dictionary by replacing the skeletal data with the engineered kinematic features
+        and adding the normalized time information for each frame of the grasping movement.
 
     Args:
         data (dictionary): A dictionary with the movement filename as the key and a pd.DataFrame containing the corresponding skeletal data of the grasping movement and the skeletal data of 9 frames
                            before the beginning of the movement as the value.
-        feature_set (set): A set containing the names of the kinematic features to be engineered.
     """
     for mov_name, mov_data in data.items():
-        mov_data = mov_feature_engineering(mov_data, feature_set)
+        mov_data = mov_feature_engineering(mov_data)
         data[mov_name] = mov_data
 
 
 def feature_statistics_extraction(data):
-    """ For each kinematic feature that was engineered and for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals extract the summary statistics of the kinematic feature values that occured in this
+    """ For each kinematic feature and for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals extract the summary statistics of the kinematic feature values that occured in this
         interval. For each kinematic feature the following summary statistics are calculated:
         - the minimum (min), the maximum (max), the average (mean) and the standard deviation (std) of the kinematic feature values.
         - the absolute time that the maximum (tmax) and the minimum (tmin) of the kinematic feature values occured.
@@ -254,8 +258,8 @@ def feature_statistics_extraction(data):
                      before the beginning of the movement as the value.
 
     Returns:
-        partial_data (dict): A dictionary with a "<movement filename>_<movement completion percentage>" string as key and a 1-dimensional numpy array containing the summary statistics of the enigeered kinematic features for
-                             the corresponding movement and movement completion percentage. If F kinematic features were engineered, the numpy arrays have size (1+7*F,).
+        partial_data (dict): A dictionary with a "<movement filename>_<movement completion percentage>" string as key and a pd.Series containing the summary statistics of the kinematic features for
+                             the corresponding movement and movement completion percentage. If F kinematic features were engineered, the pd.Series has length 1+7*F. Therefore, for F=11 the length is 78.
     """
 
     partial_data = dict()
@@ -263,19 +267,29 @@ def feature_statistics_extraction(data):
         
         for mov_name, mov_data in data.items():
             partial_mov_data = mov_data[mov_data["norm_time"] <= mov_compl]
-            points_no = partial_mov_data.shape[0]
-
             non_time_data = partial_mov_data[partial_mov_data.columns.difference(['abs_time', 'norm_time'])]
+
+            points_no = pd.Series(partial_mov_data.shape[0], index=pd.MultiIndex.from_tuples([("", "points number")], names=["kinematic feature", "summary statistic"]))
             
-            features_min = non_time_data.min(axis=0, skipna=True) 
+            features_min = non_time_data.min(axis=0, skipna=True)
+            features_min.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "min") for kinematic_feature_name in features_min.index], names=["kinematic feature", "summary statistic"])
+
             features_max = non_time_data.max(axis=0, skipna=True)
+            features_max.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "max") for kinematic_feature_name in features_max.index], names=["kinematic feature", "summary statistic"])
+
             features_mean = non_time_data.mean(axis=0, skipna=True)
+            features_mean.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "mean") for kinematic_feature_name in features_mean.index], names=["kinematic feature", "summary statistic"])
+
             features_std = non_time_data.std(axis=0, ddof=0, skipna=True)
+            features_std.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "std") for kinematic_feature_name in features_std.index], names=["kinematic feature", "summary statistic"])
 
             features_tmax = non_time_data.set_index(partial_mov_data['abs_time']).idxmax(axis=0, skipna=True)
+            features_tmax.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "tmax") for kinematic_feature_name in features_tmax.index], names=["kinematic feature", "summary statistic"])
+
             features_tmin = non_time_data.set_index(partial_mov_data['abs_time']).idxmin(axis=0, skipna=True)
+            features_tmin.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "tmin") for kinematic_feature_name in features_tmin.index], names=["kinematic feature", "summary statistic"])
             
-            slopes = []
+            slopes = dict()
             mask = non_time_data == non_time_data
             for feature in non_time_data.columns:
                 feature_mask = mask[feature]
@@ -284,10 +298,13 @@ def feature_statistics_extraction(data):
                     f = non_time_data[feature][feature_mask]
                     slope, _, _, _, _ = scipy.stats.linregress(t,f)
                 else:
-                    slope = 0
-                slopes.append(slope)
+                    slope = np.nan
+                slopes[(feature, "slope")] = slope
+            features_slopes = pd.Series(slopes)
+            features_slopes.index.set_names(["kinematic feature", "summary statistic"], inplace=True)
+            
 
-            features_stats = np.r_[points_no, features_mean, features_std, features_max, features_min, features_tmax, features_tmin, slopes]
+            features_stats = pd.concat([points_no, features_min, features_max, features_mean, features_std, features_tmax, features_tmin, features_slopes])
             np.nan_to_num(features_stats, copy=False)
 
             partial_data[f"{mov_name}_{mov_compl}"] = features_stats
