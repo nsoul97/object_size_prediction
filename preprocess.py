@@ -62,6 +62,8 @@ def cut_movement( mov_data, tail, head):
     """ Identify and isolate the data that correspond to the grasping phase of the movement and the data that correspond to the given number of frames before (tail) and after (head) the grasping phase.
         The skeletal data of the head and tail frames are to be used only for preprocessing and feature engineering purposes.
 
+        NOTE: In our implementation the frames of the grasping movements with noisy wrist y-coordinates are ignored.
+
     Args:
         mov_data (pd.DataFrame): A DataFrame containing the skeletal data of a single movement of the dataset with the frames with noisy wrist y-coordinates filtered out.
         tail (int): An integer that indicates how many conseutive frames before the grasping phase to return. If negative, the value defaults to 0.
