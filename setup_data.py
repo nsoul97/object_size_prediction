@@ -78,3 +78,26 @@ def setup_train_test_split(data, strategy):
         test_set = partitions[i]
         split = (train_set, test_set)
         yield split
+
+def setup_fvecs_labels(mov_names, mov_completion_perc, partial_data, fs_names):
+    """ Return the feature vectors and the ground truth labels that are associated with the given movement names and the given movement completion percentage.
+        The feature vectors include only the summary statistics that were extracted for the given kinematic features.
+        The ground truth labels 'S', 'M', 'L' are replaced by the 0, 1, 2 corresponding numerical values.
+
+    Args:
+        mov_names (list): A list containing the movement filenames.
+        mov_completion_perc (int): The movement completion percentage for which the feature vector of a movement is calculated.
+        partial_data (dictionary): A dictionary with a "<movement filename>_<movement completion percentage>" string as key and a pd.Series containing the summary statistics of the kinematic features for
+                                   the corresponding movement and movement completion percentage.
+        fs_names (set): A set containing the names of the kinematic features that belong in the given feature set.
+
+    Returns:
+        dataset_fvecs (list): A list containg the feature vectors of the given movements. Each feature vector is represented as a numpy array with shape (1+7*F,), where F is the number of the selected kinematic features.
+        dataset_labels (list): A list containing the numerical values of the ground-truth labels of the given movements.
+    """
+    labels_dict = {'S':0, 'M':1, 'L':2}
+
+    dataset_fvecs = [partial_data[f"{mov_name}_{mov_completion_perc}"][fs_names].to_numpy() for mov_name in mov_names]
+    dataset_labels = [labels_dict[mov_name.split('_')[1]] for mov_name in mov_names]
+
+    return dataset_fvecs, dataset_labels
