@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import re
 import numpy as np
+from config import WINDOW, PROB_THRESHOLD, DIST_THRESHOLD, START_STD, STOP_STD
 
 
 def read_dataset(path="dataset/data/", joints=None, attr=None):
@@ -41,9 +42,6 @@ def clean_data(mov_data):
     Returns:
         mov_data (pd.DataFrame): A DataFrame containing the skeletal data of the given movement with frames that have noisy wrist y-coordinates filtered out.
     """
-    
-    PROB_THRESHOLD = 0.6
-    DIST_THRESHOLD = 10
 
     mov_data = mov_data.loc[mov_data["RWrist.prob"] > PROB_THRESHOLD]                       # Remove the frames where the detection probability of the right wrist keypoint is less than or equal to 0.6
     
@@ -73,10 +71,6 @@ def cut_movement( mov_data, tail, head):
         mov_data [pd.DataFrame]: A DataFrame containing the skeletal data of the grasping phase of the given movement and the skeletal data of the given number of frames before and after the 
                                  grasping movement.
     """
-    
-    WINDOW = 10
-    START_STD = 2.0
-    STOP_STD = 1.5
 
     coords = mov_data["RWrist.y"].to_numpy()
 

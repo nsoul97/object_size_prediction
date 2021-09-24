@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sn
 import numpy as np
+from config import MOV_COMPLETION
 
 fig1, axes1 = None, None
 fig2, axes2 = None, None
@@ -58,17 +59,15 @@ def update_accuracies_plot(acc_dict, strategy, fsid, methods):
         methods (list): A list of string containing the names of all the models that were evaluated. ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
     """
 
-    MOV_COMPL = [20, 40, 60, 80, 100]
-
     colors = cm.rainbow((np.linspace(0,1,len(methods))))
     axes1.cla()
     fig1.suptitle(f"Dataset split strategy: '{strategy}'\nFeature set: {fsid}")
     axes1.set_xlabel('Movement Ratio (%)')
     axes1.set_ylabel('Accuracy (%)')
-    axes1.set_xticks(MOV_COMPL)
+    axes1.set_xticks(MOV_COMPLETION)
 
     for i, method in enumerate(methods):
-        axes1.plot(MOV_COMPL, [acc_dict[fsid][t][method][0]*100 for t in MOV_COMPL], c=colors[i], label=method)
+        axes1.plot(MOV_COMPLETION, [acc_dict[fsid][t][method][0]*100 for t in MOV_COMPLETION], c=colors[i], label=method)
     axes1.legend(loc='upper left')
 
 
@@ -86,11 +85,10 @@ def update_confmtx_plot(conf_mtx_dict, strategy, fsid, method):
         method (string): A string that identifies the model for which the confusion matrices are plotted. ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
     """
 
-    MOV_COMPL = [20, 40, 60, 80, 100]
     LABELS = ['Small', 'Medium', 'Large']
 
     fig2.suptitle(f"Dataset split strategy: '{strategy}'\nFeature set: {fsid}\nModel: {method}")
-    for k, t in enumerate(MOV_COMPL):
+    for k, t in enumerate(MOV_COMPLETION):
         axes2[k].cla()
         annotations = [[f"{conf_mtx_dict[fsid][t][method][0][i,j]:.2f}\n({conf_mtx_dict[fsid][t][method][1][i,j]:.2f})" for j in range(3)] for i in range(3)]
         if k:
@@ -101,7 +99,7 @@ def update_confmtx_plot(conf_mtx_dict, strategy, fsid, method):
                     
         axes2[k].set_xticklabels(axes2[k].get_xticklabels(), rotation = 45, fontsize = 10)
         axes2[k].tick_params(left=False, bottom=False)   
-        axes2[k].set_title(f"{MOV_COMPL[k]}%", fontsize=12)
+        axes2[k].set_title(f"{MOV_COMPLETION[k]}%", fontsize=12)
 
         axes2[0].set_ylabel('Ground Truth', fontsize=13)
         axes2[2].set_xlabel('Predictions', fontsize=13)

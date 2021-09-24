@@ -6,6 +6,7 @@ from preprocess import read_dataset, preprocess_dataset
 from ml_features import feature_engineering, feature_statistics_extraction
 from setup_data import setup_train_test_split, setup_fvecs_labels
 from plot_results import plot_results
+from config import MOV_COMPLETION
 
 def parse_args():
     """ Create the help menu prompts and parse the given attributes.
@@ -138,7 +139,6 @@ def print_results(acc_dict, strategy, fs_ids, methods):
         methods (list): A list of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
     """
 
-    MOV_COMPLETION = [20, 40, 60, 80, 100]
     pd.options.display.float_format = "{:,.2f}".format
 
     for fs_id in sorted(fs_ids):
@@ -152,8 +152,7 @@ def print_results(acc_dict, strategy, fs_ids, methods):
                                   index=methods)
 
         print(results_df, end="\n\n")
-    
-    
+        
 
 def main():
     """ 1) Parse the command line arguments.
@@ -163,7 +162,6 @@ def main():
         5) Print the accuracy of the models for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
         6) [Optional] Plot the accuracies and the confusion matrices interactively. 
     """
-    MOV_COMPLETION = [20, 40, 60, 80, 100]
 
     strategy, fs_ids, methods, plot = parse_args()
 

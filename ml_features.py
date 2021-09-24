@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 import copy
+from config import WINDOW, PROB_THRESHOLD, DIST_THRESHOLD, MOV_COMPLETION
 
 
 def euclidean_distance(mov_data, joint1, joint2):
@@ -15,7 +16,6 @@ def euclidean_distance(mov_data, joint1, joint2):
     Returns:
         dist (np.ndarray: An (n,)-dimensional array containg the euclidean distances between the given joint for the n-frames of the grasping movement.
     """
-    WINDOW = 10
 
     x1 = mov_data[f"{joint1}.x"].iloc[WINDOW:].to_numpy()
     y1 = mov_data[f"{joint1}.y"].iloc[WINDOW:].to_numpy()
@@ -51,10 +51,6 @@ def filter_aperture(aperture, mov_data, joint1, joint2):
         joint1 (str): The name of the first joint.
         joint2 (str): The name of the second joint.
     """
-
-    WINDOW = 10
-    PROB_THRESHOLD = 0.6
-    DIST_THRESHOLD = 10
 
     x1 = mov_data[f"{joint1}.x"].iloc[WINDOW:].to_numpy()
     y1 = mov_data[f"{joint1}.y"].iloc[WINDOW:].to_numpy()
@@ -97,8 +93,6 @@ def calculate_wrist_stddev(mov_data, axis):
                              of the window as a measure of the wrist's speed in the given axis.
     """
 
-    WINDOW = 10
-
     coords = mov_data[f"RWrist.{axis}"].to_numpy()
     wrist_std_dev = []
     for f in range(WINDOW, coords.shape[0]):
@@ -117,8 +111,6 @@ def calculate_wrist_stddist(mov_data):
         wrist_std_dist (list): A list with length n, where n is the number of frames of the grasping movement. Each entry of the list corresponds to the standard distance that is assigned to the last frame
                              of the window as a measure of the wrist's speed in the (x,y)-plane.
     """
-
-    WINDOW = 10
 
     x_coords = mov_data["RWrist.x"].to_numpy()
     y_coords = mov_data["RWrist.y"].to_numpy()
@@ -141,8 +133,6 @@ def calculate_wrist_axis_speed(mov_data, axis):
         wrist_ax_speed (np.ndarray): A (n,)-dimensional numpy array which for each of the n frames contains the instantaneous speed of the right wrist keypoint for the given axis. 
     """
     
-    WINDOW = 10
-
     curr_coords = mov_data[f"RWrist.{axis}"].iloc[WINDOW:].to_numpy()
     prev_coords = mov_data[f"RWrist.{axis}"].iloc[WINDOW-1:-1].to_numpy()
 
@@ -164,8 +154,6 @@ def calculate_wrist_plane_speed(mov_data):
         wrist_xy_speed (np.ndarray): A (n,)-dimensional numpy array which for each of the n frames contains the instantaneous speed of the right wrist keypoint for the (x,y)-plane. 
     """
     
-    WINDOW = 10
-
     curr_x_coords = mov_data[f"RWrist.x"].iloc[WINDOW:].to_numpy()
     prev_x_coords = mov_data[f"RWrist.x"].iloc[WINDOW-1:-1].to_numpy()
 
@@ -188,8 +176,6 @@ def calculate_norm_time(mov_data):
         mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
     """
 
-    WINDOW = 10
-
     abs_time = mov_data["Time"].iloc[WINDOW:].to_numpy()
     norm_time = 100.0 * (abs_time - abs_time[0]) / (abs_time[-1] - abs_time[0])
     return norm_time
@@ -209,8 +195,6 @@ def mov_feature_engineering(mov_data):
     Returns:
         feature_df (pd.DataFrame): A pd.DataFrame containing a timestamp and the engineered kinematic features for each of the frames of the graspin movement.
     """
-
-    WINDOW = 10
 
     feature_dict = dict()
     feature_dict["abs_time"] = mov_data["Time"].iloc[WINDOW:]
@@ -263,7 +247,7 @@ def feature_statistics_extraction(data):
     """
 
     partial_data = dict()
-    for mov_compl in [20, 40, 60, 80, 100]:
+    for mov_compl in MOV_COMPLETION:
         
         for mov_name, mov_data in data.items():
             partial_mov_data = mov_data[mov_data["norm_time"] <= mov_compl]
