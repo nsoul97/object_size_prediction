@@ -224,8 +224,8 @@ def mov_feature_engineering(mov_data):
     feature_dict["wrist y-std_dev"] = calculate_wrist_stddev(mov_data, "y")
     feature_dict["wrist xy-std_dist"] = calculate_wrist_stddist(mov_data)
     feature_dict["wrist x-speed"] = calculate_wrist_axis_speed(mov_data, "x")
-    feature_dict["wrist-y speed"] = calculate_wrist_axis_speed(mov_data, "y")
-    feature_dict["wrist-xy speed"] = calculate_wrist_plane_speed(mov_data)
+    feature_dict["wrist y-speed"] = calculate_wrist_axis_speed(mov_data, "y")
+    feature_dict["wrist xy-speed"] = calculate_wrist_plane_speed(mov_data)
 
     features_df = pd.DataFrame(feature_dict)
     return features_df
