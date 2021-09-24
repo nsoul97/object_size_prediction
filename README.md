@@ -109,7 +109,7 @@ ExtraTrees   77.18 81.66 82.50 86.28 90.49
 
 For each method, movement completion percentage and feature set combination, the floating point number indicates the average accuracy of the model in the k-fold evaluation scheme.
 
-<b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguemts. 
+<b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments. 
 
 ### Plotting the results
 It is also possible to plot the accuracy results and the confusion matrices of the models interactively.
@@ -154,3 +154,5 @@ After pressing the 'up' key, both the accuracy and the confusion matrices figure
 <p align="center">
 <img src="assets/confmtx_rf_ex3.png"></img>
 </p>
+
+The program terminates when the user closes one of the figures.
