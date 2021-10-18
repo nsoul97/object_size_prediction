@@ -18,6 +18,7 @@ def parse_args():
         feature_sets (set): A set of integers containing the feature sets ids ([1,8])
         methods (set): A set of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
         plot (boolean): A boolean that determines wheter the evaluation results are plotted.
+        seed (int): A random seed to reproduce results or None if a seed is not given.
 
     """
     parser = argparse.ArgumentParser(add_help=False)
@@ -34,6 +35,9 @@ def parse_args():
 
     parser.add_argument("--plot", action='store_true',
                         help='Plot the accuracries of the different methods superimposed and the confusion matrix of each method.')
+    
+    parser.add_argument("--seed", type=int,
+                        help="A seed to initialize the random generator.")
 
     parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                         help='Show this help message and exit.')
@@ -44,8 +48,9 @@ def parse_args():
     feature_sets = set(args.feature_sets)
     methods = set(args.methods)
     plot = args.plot
+    seed = args.seed
 
-    return strategy, feature_sets, methods, plot
+    return strategy, feature_sets, methods, plot, seed
 
 
 def fsid_to_fsnames(fsid):
@@ -156,15 +161,17 @@ def print_results(acc_dict, strategy, fs_ids, methods):
 
 def main():
     """ 1) Parse the command line arguments.
-        2) Read the dataset and apply the preprocessing pipeline to identify and isolate the grasping phase of the movements.
-        3) Engineer the kinematic features for each of the grasping movements and extract the feature statistics for each of the 20%, 40%, 60%, 80% and 100% movement completion percentages.
-        4) Train and evaluate each model for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
-        5) Print the accuracy of the models for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
-        6) [Optional] Plot the accuracies and the confusion matrices interactively. 
+        2) [Optional] Seed the random generator with the given number.
+        3) Read the dataset and apply the preprocessing pipeline to identify and isolate the grasping phase of the movements.
+        4) Engineer the kinematic features for each of the grasping movements and extract the feature statistics for each of the 20%, 40%, 60%, 80% and 100% movement completion percentages.
+        5) Train and evaluate each model for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
+        6) Print the accuracy of the models for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
+        7) [Optional] Plot the accuracies and the confusion matrices interactively. 
     """
 
-    strategy, fs_ids, methods, plot = parse_args()
+    strategy, fs_ids, methods, plot, seed = parse_args()
 
+    if seed: np.random.seed(seed)
     data = read_dataset(joints=["RWrist", "RThumb4FingerTip", "RIndex4FingerTip", "RMiddle4FingerTip"]) 
     preprocess_dataset(data)
     feature_engineering(data)

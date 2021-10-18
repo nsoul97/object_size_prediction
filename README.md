@@ -28,8 +28,8 @@ python3 evaluate_ml.py -h
 
 The help menu that is printed is the following:
 ```
-usage: evaluate_ml.py [--feature_sets {1,2,3,4,5,6,7,8} [{1,2,3,4,5,6,7,8} ...]] [--methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]] [--plot]
-                      [-h]
+usage: evaluate_ml.py [--feature_sets {1,2,3,4,5,6,7,8} [{1,2,3,4,5,6,7,8} ...]]
+                      [--methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]] [--plot] [--seed SEED] [-h]
                       {all-in,one-out}
 
 positional arguments:
@@ -41,6 +41,7 @@ optional arguments:
   --methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]
                         The methods that will be used in order to train and evaluate the model.
   --plot                Plot the accuracries of the different methods superimposed and the confusion matrix of each method.
+  --seed SEED           A seed to initialize the random generator.
   -h, --help            Show this help message and exit.
 ```
 
@@ -109,7 +110,7 @@ ExtraTrees   77.18 81.66 82.50 86.28 90.49
 
 For each method, movement completion percentage and feature set combination, the floating point number indicates the average accuracy of the model in the k-fold evaluation scheme.
 
-<b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments. 
+<b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments unless a seed is provided. 
 
 ### Plotting the results
 It is also possible to plot the accuracy results and the confusion matrices of the models interactively.
@@ -156,3 +157,10 @@ After pressing the 'up' key, both the accuracy and the confusion matrices figure
 </p>
 
 The program terminates when the user closes one of the figures.
+
+## How to reproduce the results of the paper?
+Seed the random generator with 0.
+```
+python3 evaluate_ml.py all-in --seed 0
+python3 evaluate_ml.py one-out --seed 0
+```
