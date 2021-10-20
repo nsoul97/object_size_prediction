@@ -117,19 +117,15 @@ It is also possible to plot the accuracy results and the confusion matrices of t
 
 Each confusion matrix has a 3x3 shape and was calculated as the average of k confusion matrices in the k-fold evaluation scheme. The floating point number outside the parentheses indicates the average accuracy for a (ground-truth label, predicted class) combination. On the other hand, the floating point number inside the parentheses indicates the standard deviation of the k accuracies for a (ground-truth label, predicted class) combination.
 
+The user can choose the feature set and the method for which the plots are drawn interactively, using the arrow keys:
+- the 'up' and 'down' arrow keys are used to change the feature set
+- the 'right' and 'left' arrow keys are used to change the method
 
 e.g.
 ```
 python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomForest SVM --plot
 ```
-The user can choose the feature set and the method for which the plots are drawn interactively, using the arrow keys:
-- the 'up' and 'down' arrow keys are used to change the feature set
-- the 'right' and 'left' arrow keys are used to change the method
 
-e.g. 
-```
-python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomForest SVM
-```
 Initally the following figures are plotted:
 
 <p align="center">
