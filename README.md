@@ -1,4 +1,4 @@
-# Human action prediction from hand movement for human-robot collaboration
+# Object size prediction from hand movement using a single RGB sensor
 ## Dependencies
 - Python version: >= 3.3
 
@@ -88,27 +88,27 @@ python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomFo
 ```
 Dataset split strategy: 'all-in'
 feature set: 1 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture']
-               20    40    60    80    100
-SVM          68.26 68.97 72.73 76.07 82.64
-RandomForest 76.21 80.02 80.99 86.15 89.79
-ExtraTrees   75.38 82.39 82.39 87.56 90.91
+                     20          40          60          80          100
+ExtraTrees    77.1 (5.0)  82.4 (4.2)  82.8 (4.1)  88.4 (3.5)  92.0 (3.3)
+RandomForest  77.0 (4.8)  79.4 (4.2)  82.1 (3.9)  87.0 (3.0)  89.4 (3.2)
+SVM           67.4 (2.3)  69.0 (3.8)  73.4 (2.5)  75.7 (3.7)  82.7 (3.0)
 
 Dataset split strategy: 'all-in'
 feature set: 3 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev']
-               20    40    60    80    100
-SVM          69.64 71.04 72.87 75.39 81.81
-RandomForest 79.72 80.13 82.24 86.29 90.21
-ExtraTrees   78.03 82.36 83.90 88.24 91.04
+                     20          40          60          80          100
+ExtraTrees    78.5 (2.9)  82.1 (4.3)  84.6 (3.4)  88.1 (2.4)  91.0 (2.3)
+RandomForest  78.9 (4.3)  80.1 (3.7)  81.4 (2.8)  86.4 (3.1)  88.5 (3.2)
+SVM           69.5 (5.2)  70.8 (2.9)  71.9 (4.8)  75.1 (5.1)  82.1 (4.5)
 
 Dataset split strategy: 'all-in'
 feature set: 5 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture', 'wrist x-speed', 'wrist y-speed']
-               20    40    60    80    100
-SVM          36.77 42.12 48.82 53.41 55.27
-RandomForest 77.05 78.72 81.94 84.75 88.66
-ExtraTrees   77.18 81.66 82.50 86.28 90.49
+                     20          40          60          80          100
+ExtraTrees    77.3 (5.0)  80.8 (4.3)  83.6 (3.1)  87.4 (3.0)  90.8 (4.3)
+RandomForest  75.9 (6.1)  80.0 (2.0)  82.0 (3.6)  85.4 (5.1)  87.3 (4.4)
+SVM           36.2 (6.1)  42.9 (5.4)  49.0 (6.3)  53.3 (5.2)  56.2 (3.9)
 ```
 
-For each method, movement completion percentage and feature set combination, the floating point number indicates the average accuracy of the model in the k-fold evaluation scheme.
+For each method, movement completion percentage and feature set combination, the floating point numbers indicate the mean and the standard deviation of the model's accuracy rates in the k-fold evaluation scheme.
 
 <b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments unless a seed is provided. 
 
