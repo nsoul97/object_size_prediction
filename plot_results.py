@@ -90,19 +90,19 @@ def update_confmtx_plot(conf_mtx_dict, strategy, fsid, method):
     fig2.suptitle(f"Dataset split strategy: '{strategy}'\nFeature set: {fsid}\nModel: {method}")
     for k, t in enumerate(MOV_COMPLETION):
         axes2[k].cla()
-        annotations = [[f"{conf_mtx_dict[fsid][t][method][0][i,j]:.2f}\n({conf_mtx_dict[fsid][t][method][1][i,j]:.2f})" for j in range(3)] for i in range(3)]
+        annotations = [[f"{100*conf_mtx_dict[fsid][t][method][0][i,j]:.1f}\n({100*conf_mtx_dict[fsid][t][method][1][i,j]:.1f})" for j in range(3)] for i in range(3)]
         if k:
-            sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, cbar=False, xticklabels=LABELS, yticklabels=False, ax=axes2[k], vmin=0.0, vmax=1.0)
+            sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, annot_kws={"size":14}, cbar=False, xticklabels=LABELS, yticklabels=False, ax=axes2[k], vmin=0.0, vmax=1.0)
         else:
-            sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, cbar=False, xticklabels=LABELS, yticklabels=LABELS, ax=axes2[k], vmin=0.0, vmax=1.0)
-            axes2[k].set_yticklabels(axes2[k].get_yticklabels(), rotation = 25, fontsize = 10)
+            sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, annot_kws={"size":14}, cbar=False, xticklabels=LABELS, yticklabels=LABELS, ax=axes2[k], vmin=0.0, vmax=1.0)
+            axes2[k].set_yticklabels(axes2[k].get_yticklabels(), rotation = 25, fontsize = 14)
                     
-        axes2[k].set_xticklabels(axes2[k].get_xticklabels(), rotation = 45, fontsize = 10)
+        axes2[k].set_xticklabels(axes2[k].get_xticklabels(), rotation = 45, fontsize = 14)
         axes2[k].tick_params(left=False, bottom=False)   
-        axes2[k].set_title(f"{MOV_COMPLETION[k]}%", fontsize=12)
+        axes2[k].set_title(f"{MOV_COMPLETION[k]}%", fontsize=16)
 
-        axes2[0].set_ylabel('Ground Truth', fontsize=13)
-        axes2[2].set_xlabel('Predictions', fontsize=13)
+        axes2[0].set_ylabel('Ground Truth', fontsize=16)
+        axes2[2].set_xlabel('Predictions', fontsize=16)
 
 def plot_results(acc_dict, conf_mtx_dict, strategy, fs_ids, methods):
     """ Plot the accuracies and the confusion matrices interactively.
