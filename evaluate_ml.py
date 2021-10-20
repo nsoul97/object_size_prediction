@@ -15,9 +15,9 @@ def parse_args():
 
     Returns:
         strategy (string): The dataset split strategy string ('all-in', 'one-out')
-        feature_sets (set): A set of integers containing the feature sets ids ([1,8])
-        methods (set): A set of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
-        plot (boolean): A boolean that determines wheter the evaluation results are plotted.
+        feature_sets (list): A list of integers containing the feature sets ids ([1,8])
+        methods (list): A list of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
+        plot (boolean): A boolean that determines whether the evaluation results are plotted.
         seed (int): A random seed to reproduce results or None if a seed is not given.
 
     """
@@ -45,8 +45,8 @@ def parse_args():
     args = parser.parse_args()
 
     strategy = args.strategy
-    feature_sets = set(args.feature_sets)
-    methods = set(args.methods)
+    feature_sets = sorted(set(args.feature_sets))
+    methods = sorted(set(args.methods))
     plot = args.plot
     seed = args.seed
 
@@ -61,28 +61,29 @@ def fsid_to_fsnames(fsid):
         fsid (int): The feature set id is an integer in [1,8].
 
     Returns:
-        fsnames (set): A set containing the names of the kinematic features that belong in the given feature set.
+        fsnames (list): A list containing the names of the kinematic features that belong in the given feature set.
     """
 
-    fs = {  1: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture'},
-            2: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord'},
-            3: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev'},
-            4: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-std_dist'},
-            5: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-speed', 'wrist y-speed'},
-            6: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-speed'},
-            7: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-std_dev', 'wrist y-std_dev'},
-            8: {'', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-speed', 'wrist y-speed'}
+    fs = {  1: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture'],
+            2: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord'],
+            3: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev'],
+            4: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-std_dist'],
+            5: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-speed', 'wrist y-speed'],
+            6: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-speed'],
+            7: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-std_dev', 'wrist y-std_dev'],
+            8: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-speed', 'wrist y-speed']
         }
     
     fsnames = fs[fsid]
     return fsnames
 
-def train(train_set, method):
-    """ Train a model based on the given training set and return it. The model to be trained is specified via the method string.
+def train(train_set, method, seed):
+    """ Train a model based on the given training set and return it. The model to be trained is specified via the method string. If seed is not None, the models are trained to reproduce some results.
 
     Args:
         train_set (tuple): The training set contains the feature vectors of the training grasping movements and their corresponding ground truth labels (S:0, M:1, L:2) 
         method (string): A string that specifies the model to be trained ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM' or 'GaussianProcess')
+        seed (int): A random seed to reproduce results or None if a seed is not given.
 
     Returns:
         model (RandomForestClassifier || GradientBoostingClassifier || ExtraTreesClassifier || SVC || GaussianProcessClassifier): The model that was trained based on the training set's instances.
@@ -91,19 +92,19 @@ def train(train_set, method):
     train_x, train_y = train_set
 
     if method == 'RandomForest':
-        model = sklearn.ensemble.RandomForestClassifier()
+        model = sklearn.ensemble.RandomForestClassifier(random_state=seed)
         model.fit(train_x, train_y)
     elif method == 'GradientBoosting':
-        model = sklearn.ensemble.GradientBoostingClassifier()
+        model = sklearn.ensemble.GradientBoostingClassifier(random_state=seed)
         model.fit(train_x, train_y)
     elif method == 'ExtraTrees':
-        model = sklearn.ensemble.ExtraTreesClassifier()
+        model = sklearn.ensemble.ExtraTreesClassifier(random_state=seed)
         model.fit(train_x, train_y)
     elif method == 'SVM':
-        model = sklearn.svm.SVC()
+        model = sklearn.svm.SVC(random_state=seed)
         model.fit(train_x, train_y)
     elif method == 'GaussianProcess':
-        model = sklearn.gaussian_process.GaussianProcessClassifier()
+        model = sklearn.gaussian_process.GaussianProcessClassifier(random_state=seed)
         model.fit(train_x, train_y)
     else:
         assert(0)
@@ -133,7 +134,7 @@ def predict(test_set, model):
     return acc, conf_mtx
 
 def print_results(acc_dict, strategy, fs_ids, methods):
-    """ Print the accuracy results for the given dataset split strategy, feature sets and methods for the movement completion percentages 20%, 40%, 60%, 80%, 100%.
+    """ Print the mean and the standard deviation of the accuracy results for the given dataset split strategy, feature sets and methods for the movement completion percentages 20%, 40%, 60%, 80%, 100%.
 
     Args:
         acc_dict (dictionary): A 3-level dictionary with a feature set id as the 1st-level key, a movement completion percentage as the 2nd-level key and a method as the 3rd-level key. The value of the dictionary in the
@@ -144,34 +145,29 @@ def print_results(acc_dict, strategy, fs_ids, methods):
         methods (list): A list of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
     """
 
-    pd.options.display.float_format = "{:,.2f}".format
-
-    for fs_id in sorted(fs_ids):
+    for fs_id in fs_ids:
         fs_names = sorted(fsid_to_fsnames(fs_id))
         fs_names.remove('')
 
         print(f"Dataset split strategy: '{strategy}'")
         print(f"feature set: {fs_id} {fs_names}")
 
-        results_df = pd.DataFrame(data={mov_compl:[acc_dict[fs_id][mov_compl][method][0]*100 for method in methods] for mov_compl in MOV_COMPLETION},
+        results_df = pd.DataFrame(data={mov_compl:[f"{acc_dict[fs_id][mov_compl][method][0]*100:.1f} ({acc_dict[fs_id][mov_compl][method][1]*100:.1f})" for method in methods] for mov_compl in MOV_COMPLETION},
                                   index=methods)
-
         print(results_df, end="\n\n")
         
 
 def main():
     """ 1) Parse the command line arguments.
-        2) [Optional] Seed the random generator with the given number.
-        3) Read the dataset and apply the preprocessing pipeline to identify and isolate the grasping phase of the movements.
-        4) Engineer the kinematic features for each of the grasping movements and extract the feature statistics for each of the 20%, 40%, 60%, 80% and 100% movement completion percentages.
-        5) Train and evaluate each model for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
-        6) Print the accuracy of the models for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
-        7) [Optional] Plot the accuracies and the confusion matrices interactively. 
+        2) Read the dataset and apply the preprocessing pipeline to identify and isolate the grasping phase of the movements.
+        3) Engineer the kinematic features for each of the grasping movements and extract the feature statistics for each of the 20%, 40%, 60%, 80% and 100% movement completion percentages.
+        4) Train and evaluate each model for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
+        5) Print the accuracy of the models for the given dataset split strategy, for each of the 20%, 40%, 60%, 80% and 100% movement completion intervals and for each of the given feature sets.
+        6) [Optional] Plot the accuracies and the confusion matrices interactively. 
     """
 
     strategy, fs_ids, methods, plot, seed = parse_args()
 
-    if seed: np.random.seed(seed)
     data = read_dataset(joints=["RWrist", "RThumb4FingerTip", "RIndex4FingerTip", "RMiddle4FingerTip"]) 
     preprocess_dataset(data)
     feature_engineering(data)
@@ -182,14 +178,14 @@ def main():
 
     for fs_id in fs_ids:
         fs_names = fsid_to_fsnames(fs_id)
-        for train_set_names, test_set_names in setup_train_test_split(data, strategy):
+        for train_set_names, test_set_names in setup_train_test_split(data, strategy, seed):
             for mov_completion_perc in MOV_COMPLETION:
 
                 train_set = setup_fvecs_labels(train_set_names, mov_completion_perc, partial_data, fs_names)
                 test_set = setup_fvecs_labels(test_set_names, mov_completion_perc, partial_data, fs_names)
 
                 for method in methods:
-                    model = train(train_set, method)
+                    model = train(train_set, method, seed)
                     acc, conf_mtx = predict(test_set, model)
                     
                     acc_dict[fs_id][mov_completion_perc][method].append(acc)
