@@ -6,7 +6,7 @@ from preprocess import read_dataset, preprocess_dataset
 from ml_features import feature_engineering, feature_statistics_extraction
 from setup_data import setup_train_test_split, setup_fvecs_labels
 from plot_results import plot_results
-from config import MOV_COMPLETION
+from config import MOV_COMPLETION, WINDOW
 
 def parse_args():
     """ Create the help menu prompts and parse the given attributes.
@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument("strategy", type=str, choices=['all-in', 'one-out'],
                         help="The dataset split strategy to be used.")
 
-    parser.add_argument("--feature_sets", nargs='+', type=int, default=list(range(1,9)), choices=list(range(1,9)),
+    parser.add_argument("--feature_sets", nargs='+', type=int, default=list(range(0,9)), choices=list(range(0,9)),
                         help="The feature sets that will be used in order to produce the kinematic features of the grasping movement.")
 
     parser.add_argument("--methods", nargs='+', type=str, default=['RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess'], 
@@ -64,7 +64,8 @@ def fsid_to_fsnames(fsid):
         fsnames (list): A list containing the names of the kinematic features that belong in the given feature set.
     """
 
-    fs = {  1: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture'],
+    fs = {  0: ['', 'thumb-index aperture'],
+            1: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture'],
             2: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord'],
             3: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev'],
             4: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-std_dist'],
@@ -169,7 +170,7 @@ def main():
     strategy, fs_ids, methods, plot, seed = parse_args()
 
     data = read_dataset(joints=["RWrist", "RThumb4FingerTip", "RIndex4FingerTip", "RMiddle4FingerTip"]) 
-    preprocess_dataset(data)
+    preprocess_dataset(data, tail=WINDOW-1)
     feature_engineering(data)
     partial_data = feature_statistics_extraction(data)
     
