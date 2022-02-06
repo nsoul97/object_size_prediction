@@ -173,12 +173,23 @@ def calculate_norm_time(mov_data):
     """Calculate the normalized time (movement completion percentage) for each of the frames of the grasping movement based on the absolute time of each frame ("Time" column).
 
     Args:
-        mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
+        norm_time (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
     """
 
     abs_time = mov_data["Time"].iloc[WINDOW:].to_numpy()
     norm_time = 100.0 * (abs_time - abs_time[0]) / (abs_time[-1] - abs_time[0])
     return norm_time
+
+def calculate_elapsed_time(mov_data):
+    """Calculate the elapsed time for each of the frames of the grasping movement based on the absolute time of each frame ("Time" column).
+
+    Args:
+        mov_data (pd.DataFrame): A pd.DataFrame containing the skeletal data of the grasping movement and of 9 frames before the beginning of the movement.
+    """
+
+    abs_time = mov_data["Time"].iloc[WINDOW:].to_numpy()
+    elapsed_time = abs_time - abs_time[0]
+    return elapsed_time
 
 def mov_feature_engineering(mov_data):
     """ Engineer the given kinematic features and the normalized time (movement completion percentage) for each of the frames of the grasping movement.
@@ -199,11 +210,12 @@ def mov_feature_engineering(mov_data):
     feature_dict = dict()
     feature_dict["abs_time"] = mov_data["Time"].iloc[WINDOW:]
     feature_dict["norm_time"] = calculate_norm_time(mov_data)
-    feature_dict["thumb-index aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RIndex4FingerTip")
-    feature_dict["thumb-middle aperture"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RMiddle4FingerTip")
-    feature_dict["index-middle aperture"] = calculate_aperture(mov_data, "RIndex4FingerTip", "RMiddle4FingerTip")
-    feature_dict["wrist x-coord"] = mov_data["RWrist.x"].iloc[WINDOW:]
-    feature_dict["wrist y-coord"] = mov_data["RWrist.y"].iloc[WINDOW:]
+    feature_dict["elapsed_time"] = calculate_elapsed_time(mov_data)
+    feature_dict["TI-Ap"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RIndex4FingerTip")
+    feature_dict["TM-Ap"] = calculate_aperture(mov_data, "RThumb4FingerTip", "RMiddle4FingerTip")
+    feature_dict["IM-Ap"] = calculate_aperture(mov_data, "RIndex4FingerTip", "RMiddle4FingerTip")
+    feature_dict["wrist x"] = mov_data["RWrist.x"].iloc[WINDOW:]
+    feature_dict["wrist y"] = mov_data["RWrist.y"].iloc[WINDOW:]
     feature_dict["wrist x-std_dev"] = calculate_wrist_stddev(mov_data, "x")
     feature_dict["wrist y-std_dev"] = calculate_wrist_stddev(mov_data, "y")
     feature_dict["wrist xy-std_dist"] = calculate_wrist_stddist(mov_data)
@@ -251,7 +263,7 @@ def feature_statistics_extraction(data):
         
         for mov_name, mov_data in data.items():
             partial_mov_data = mov_data[mov_data["norm_time"] <= mov_compl]
-            non_time_data = partial_mov_data[partial_mov_data.columns.difference(['abs_time', 'norm_time'])]
+            non_time_data = partial_mov_data[partial_mov_data.columns.difference(['abs_time', 'elapsed_time', 'norm_time'])]
 
             points_no = pd.Series(partial_mov_data.shape[0], index=pd.MultiIndex.from_tuples([("", "points number")], names=["kinematic feature", "summary statistic"]))
             
@@ -266,19 +278,13 @@ def feature_statistics_extraction(data):
 
             features_std = non_time_data.std(axis=0, ddof=0, skipna=True)
             features_std.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "std") for kinematic_feature_name in features_std.index], names=["kinematic feature", "summary statistic"])
-
-            features_tmax = non_time_data.set_index(partial_mov_data['abs_time']).idxmax(axis=0, skipna=True)
-            features_tmax.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "tmax") for kinematic_feature_name in features_tmax.index], names=["kinematic feature", "summary statistic"])
-
-            features_tmin = non_time_data.set_index(partial_mov_data['abs_time']).idxmin(axis=0, skipna=True)
-            features_tmin.index = pd.MultiIndex.from_tuples([(kinematic_feature_name, "tmin") for kinematic_feature_name in features_tmin.index], names=["kinematic feature", "summary statistic"])
             
             slopes = dict()
             mask = non_time_data == non_time_data
             for feature in non_time_data.columns:
                 feature_mask = mask[feature]
                 if feature_mask.sum(axis=0) > 1:
-                    t = partial_mov_data["abs_time"][feature_mask]
+                    t = partial_mov_data["elapsed_time"][feature_mask]
                     f = non_time_data[feature][feature_mask]
                     slope, _, _, _, _ = scipy.stats.linregress(t,f)
                 else:
@@ -288,10 +294,11 @@ def feature_statistics_extraction(data):
             features_slopes.index.set_names(["kinematic feature", "summary statistic"], inplace=True)
             
 
-            features_stats = pd.concat([points_no, features_min, features_max, features_mean, features_std, features_tmax, features_tmin, features_slopes])
+            features_stats = pd.concat([points_no, features_min, features_max, features_mean, features_std, features_slopes])
             np.nan_to_num(features_stats, copy=False)
 
             partial_data[f"{mov_name}_{mov_compl}"] = features_stats
+
 
     return partial_data
             
