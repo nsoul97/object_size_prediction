@@ -6,7 +6,7 @@ from preprocess import read_dataset, preprocess_dataset
 from ml_features import feature_engineering, feature_statistics_extraction
 from setup_data import setup_train_test_split, setup_fvecs_labels
 from plot_results import plot_results
-from config import MOV_COMPLETION, WINDOW
+from config import MOV_COMPLETION, WINDOW, FS_NAMES
 
 def parse_args():
     """ Create the help menu prompts and parse the given attributes.
@@ -15,7 +15,7 @@ def parse_args():
 
     Returns:
         strategy (string): The dataset split strategy string ('all-in', 'one-out')
-        feature_sets (list): A list of integers containing the feature sets ids ([1,8])
+        feature_sets (list): A list of integers containing the feature sets ids ([0,8])
         methods (list): A list of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
         plot (boolean): A boolean that determines whether the evaluation results are plotted.
         seed (int): A random seed to reproduce results or None if a seed is not given.
@@ -52,31 +52,6 @@ def parse_args():
 
     return strategy, feature_sets, methods, plot, seed
 
-
-def fsid_to_fsnames(fsid):
-    """ Returns the names of the kinematic features that correspond to the given feature set id. The empty string is also included in the names, because the 'points number' summary statistic is computed once for all the 
-        the kinematic features.
-
-    Args:
-        fsid (int): The feature set id is an integer in [1,8].
-
-    Returns:
-        fsnames (list): A list containing the names of the kinematic features that belong in the given feature set.
-    """
-
-    fs = {  0: ['', 'thumb-index aperture'],
-            1: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture'],
-            2: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord'],
-            3: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev'],
-            4: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-std_dist'],
-            5: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-speed', 'wrist y-speed'],
-            6: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist xy-speed'],
-            7: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-std_dev', 'wrist y-std_dev'],
-            8: ['', 'thumb-index aperture', 'thumb-middle aperture', 'index-middle aperture', 'wrist x-coord', 'wrist y-coord', 'wrist x-speed', 'wrist y-speed']
-        }
-    
-    fsnames = fs[fsid]
-    return fsnames
 
 def train(train_set, method, seed):
     """ Train a model based on the given training set and return it. The model to be trained is specified via the method string. If seed is not None, the models are trained to reproduce some results.
@@ -142,13 +117,12 @@ def print_results(acc_dict, strategy, fs_ids, methods):
                                3rd level is a tuple, whose 1st value indicates the accuracy of the method for the given feature set and movement completion percentage. This accuracy was calculated as
                                the average of k accuracy results in the k-fold evaluation scheme. The 2nd value of the tuple is the standard deviation of the k accuracy results. 
         strategy (string): The dataset split strategy string ('all-in', 'one-out')
-        fs_ids (list): A list of integers containing the feature sets ids ([1,8])
+        fs_ids (list): A list of integers containing the feature sets ids ([0,8])
         methods (list): A list of strings containing the names of the learning algorithms to be used ('RandomForest', 'GradientBoosting', 'ExtraTrees', 'SVM', 'GaussianProcess')
     """
 
     for fs_id in fs_ids:
-        fs_names = sorted(fsid_to_fsnames(fs_id))
-        fs_names.remove('')
+        fs_names = FS_NAMES[fs_id]
 
         print(f"Dataset split strategy: '{strategy}'")
         print(f"feature set: {fs_id} {fs_names}")
@@ -176,9 +150,10 @@ def main():
     
     acc_dict = {fs_id:{mov_completion_perc:{method:[] for method in methods} for mov_completion_perc in MOV_COMPLETION} for fs_id in fs_ids}
     conf_mtx_dict = {fs_id:{mov_completion_perc:{method:[] for method in methods} for mov_completion_perc in MOV_COMPLETION} for fs_id in fs_ids}
+    feat_imp_dict = {fs_id:{mov_completion_perc: [] for mov_completion_perc in MOV_COMPLETION} for fs_id in fs_ids} if "ExtraTrees" in methods else None
 
     for fs_id in fs_ids:
-        fs_names = fsid_to_fsnames(fs_id)
+        fs_names = [''] + FS_NAMES[fs_id]
         for train_set_names, test_set_names in setup_train_test_split(data, strategy, seed):
             for mov_completion_perc in MOV_COMPLETION:
 
@@ -191,15 +166,19 @@ def main():
                     
                     acc_dict[fs_id][mov_completion_perc][method].append(acc)
                     conf_mtx_dict[fs_id][mov_completion_perc][method].append(conf_mtx)
+
+                    if method == "ExtraTrees":
+                        feat_imp_dict[fs_id][mov_completion_perc].append(model.feature_importances_)
     
     for fs_id in fs_ids:
         for mov_completion_perc in MOV_COMPLETION:
             for method in methods:
                 acc_dict[fs_id][mov_completion_perc][method] = (np.average(acc_dict[fs_id][mov_completion_perc][method]), np.std(acc_dict[fs_id][mov_completion_perc][method]))
                 conf_mtx_dict[fs_id][mov_completion_perc][method] = (np.average(conf_mtx_dict[fs_id][mov_completion_perc][method], axis=0), np.std(conf_mtx_dict[fs_id][mov_completion_perc][method], axis=0))
+                if method == "ExtraTrees":
+                    feat_imp_dict[fs_id][mov_completion_perc] = (np.average(feat_imp_dict[fs_id][mov_completion_perc], axis=0), np.std(feat_imp_dict[fs_id][mov_completion_perc], axis=0))
 
-    print_results(acc_dict, strategy, fs_ids, methods)
-    if plot: plot_results(acc_dict, conf_mtx_dict, strategy, fs_ids, methods)
+    if plot: plot_results(acc_dict, conf_mtx_dict, feat_imp_dict, strategy, fs_ids, methods)
 
 if __name__ == '__main__':
     main()
