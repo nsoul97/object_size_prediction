@@ -10,15 +10,6 @@ This repository has also the following package dependencies:
 - matplotlib
 - scikit_learn
 
-## Things to do before running the script
-- Clone the repository to your local machine
-- Unzip the data.tar.gz file in the dataset folder.
-```
-tar -xf data.tar.gz
-```
-- Install the repository's dependencies.
-
-
 ## How to run the evaluation script ?
 In order to print the help menu of the evaluation script, run the following command:
 ```python
@@ -28,19 +19,17 @@ python3 evaluate_ml.py -h
 
 The help menu that is printed is the following:
 ```
-usage: evaluate_ml.py [--feature_sets {1,2,3,4,5,6,7,8} [{1,2,3,4,5,6,7,8} ...]]
-                      [--methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]] [--plot] [--seed SEED] [-h]
-                      {all-in,one-out}
+usage: evaluate_ml.py [--feature_sets {0,1,2,3,4,5,6,7,8} [{0,1,2,3,4,5,6,7,8} ...]] [--methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]] [--plot] [--seed SEED] [-h] {all-in,one-out}
 
 positional arguments:
   {all-in,one-out}      The dataset split strategy to be used.
 
 optional arguments:
-  --feature_sets {1,2,3,4,5,6,7,8} [{1,2,3,4,5,6,7,8} ...]
+  --feature_sets {0,1,2,3,4,5,6,7,8} [{0,1,2,3,4,5,6,7,8} ...]
                         The feature sets that will be used in order to produce the kinematic features of the grasping movement.
   --methods {RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} [{RandomForest,GradientBoosting,ExtraTrees,SVM,GaussianProcess} ...]
                         The methods that will be used in order to train and evaluate the model.
-  --plot                Plot the accuracries of the different methods superimposed and the confusion matrix of each method.
+  --plot                Plot the accuracries of the different methods superimposed, the confusion matrices of each method and the feature importances of the Extra Trees model (if ET is one of the given models).
   --seed SEED           A seed to initialize the random generator.
   -h, --help            Show this help message and exit.
 ```
@@ -63,7 +52,7 @@ In the previous cases, the script will output the results of all the methods:
 - SVM
 - GaussianProcess
 
-for each of the 8 feature sets.
+for each of all the following feature sets.
 
 ### Feature Sets
 The kinematic features that are engineered for each feature set are the following:
@@ -71,7 +60,7 @@ The kinematic features that are engineered for each feature set are the followin
 <img src="assets/feature_sets.png" height=600></img>
 </p>
 
-It is possible to specify the methods and the feature sets for which the models will be evaluated.
+It is possible to specify a subset of methods and feature sets for which the models will be evaluated.
 
 e.g.
 ```python
