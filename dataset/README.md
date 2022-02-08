@@ -57,7 +57,7 @@ As a result, the final dataset consists of **715 movements**. <br/><br/>
 ## Skeletal data
 
 Each file of the dataset contains the skeletal data of the participant. The skeletal data was extracted using the **OpenPose** framework. The OpenPose framework was used to estimate the 2D locations of 18 body joints and 42 hand joints (21 hand joints for each of the left and the right hand). Each file contains only the joints of the upper body and of the hands. Specifically, the coordinates of only the following joints are included in the dataset:
-* the neck (Neck) and the mid-hip (MidHip)
+* the neck (Neck) and the mid-hip (MidHip) full body joints
 * the left shoulder (LShoulder), the left elbow (LElbow) and the left wrist (LWrist) full body joints
 * the right shoulder (RShoulder), the right elbow (RElbow) and the right wrist (RWrist) full body joints
 * the right hand joints
