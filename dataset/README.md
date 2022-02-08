@@ -37,7 +37,9 @@ Each participant reached for each of the small, the medium and the large object 
 
 ## Dataset Organization
 
-The files are organized in eight directories <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, with $i=1,...,8$, one for each participant. The name of each  file indicates the participant's pseudonym <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, the object's size (S, M, L) and the ordinal number of the movement towards the object (from 01 to 30).
+The files are organized in eight directories <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, with <img src="https://latex.codecogs.com/svg.image?i=1,\dots,8" title="i=1,\dots,8" />, one for each participant. 
+
+The name of each  file indicates the **participant's pseudonym** <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, the **object's size** (*S, M, L*) and the **ordinal number** of the participant's movement towards the object (*from 01 to 30*).
 
 e.g. P4/P4_L_09.csv is the 9th movement of the participant P4 towards the large object.
 
@@ -115,4 +117,17 @@ In conclusion, each file contains 151 columns:
 - 3 columns (x,y,prob) for each of the 50 joints
 - an extra "Time" column
 
-Each row corresponds to a frame of the recorded movement. 
+Each row corresponds to a frame of the recorded movement.
+
+
+# Citation
+Please cite this paper in your publications if you use this dataset for your research:
+
+```
+@inproceedings{dagioglou22obj,
+      author = {Maria Dagioglou and Nikolaos Soulounias and Theodoros Giannakopoulos},
+      booktitle = {Human-Computer Interaction},
+      title = {Object Size Prediction from Hand Movement Using a Single RGB Sensor},
+      year = {2022}
+    }
+```
