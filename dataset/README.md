@@ -35,18 +35,15 @@ Each participant reached for each of the small, the medium and the large object 
 - 90 movements were recorded for each participant and
 - 720 movements were recorded in total. <br/><br/>
 
-## Movement Identification
+## Dataset Organization
 
-A movement can be identified based on:
-- the participant's identifier (P1, P2, P3, P4, P5, P6, P7, P8)
-- the size of the target object (S, M, L)
-- the numerical identifier of the movement for this (participant, object) pair  (01, 02, ..., 29, 30)
+The files are organized in eight directories <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, with $i=1,...,8$, one for each participant. The name of each  file indicates the participant's pseudonym <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, the object's size (S, M, L) and the ordinal number of the movement towards the object (from 01 to 30).
 
-e.g. P1_S_12: The movement was performed by the P1 participant. In this movement the participant reached for the small object (S). Out of the 30 total recorded movements of the (P1,S) pair, this is the 12th movement. <br/><br/>
+e.g. P4/P4_L_09.csv is the 9th movement of the participant P4 towards the large object.
 
-## Final dataset
+## Excluded Movements
 
-Out of these 720 movements, 5 movements where the data collection was problematic were identified and excluded from the dataset. Specifically, the following files were excluded from the dataset:
+Out of these 720 movements, 5 movements in which the data collection was problematic were identified and excluded from the dataset. Specifically, the following files were excluded from the dataset:
 * P2_S_15.csv
 * P4_M_07.csv
 * P5_L_03.csv
@@ -57,13 +54,17 @@ As a result, the final dataset consists of **715 movements**. <br/><br/>
 
 ## Skeletal data
 
-Each file of the dataset contains the skeletal data of the participant. The skeletal data was extracted using the **OpenPose** framework. The OpenPose framework was used to estimate the 2D locations of 18 body joints and 42 hand joints (21 hand joints for each of the left and the right hand). Each file contains only the joints that could potentially be helpful for predicting the object-to-be-grasped. Specifically, each file contains:
+Each file of the dataset contains the skeletal data of the participant. The skeletal data was extracted using the **OpenPose** framework. The OpenPose framework was used to estimate the 2D locations of 18 body joints and 42 hand joints (21 hand joints for each of the left and the right hand). Each file contains only the joints of the upper body and of the hands. Specifically, the coordinates of only the following joints are included in the dataset:
+* the neck (Neck) and the mid-hip (MidHip)
+* the left shoulder (LShoulder), the left elbow (LElbow) and the left wrist (LWrist) full body joints
 * the right shoulder (RShoulder), the right elbow (RElbow) and the right wrist (RWrist) full body joints
 * the right hand joints
+* the left hand joints
 
-Therefore, 24 joints are listed in total in each csv file:
-* 3 full body joints
+Therefore, 50 joints are listed in total in each csv file:
+* 8 full body joints
 * 21 right hand joints
+* 21 left hand joints
 <br/><br/>
 
 <p align="center">
@@ -72,32 +73,37 @@ Therefore, 24 joints are listed in total in each csv file:
 
 The following names are used to refer to the corresponding joints of the images above:
 
-| OpenPose Joint Enumeration | Joint Name          | 
-| -------------------------- | ------------------- |
-| Full Body -  5             | RShoulder           |
-| Full Body -  6             | RElbow              |
-| Full Body -  7             | RWrist              |
-| Right Hand - 0             | RPalmBase           |
-| Right Hand - 1             | RThumb1CMC          |
-| Right Hand - 2             | RThumb2Knuckles     |
-| Right Hand - 3             | RThumb3IP           |
-| Right Hand - 4             | RThumb4FingerTip    |
-| Right Hand - 5             | RIndex1Knuckles     |
-| Right Hand - 6             | RIndex2PIP          |
-| Right Hand - 7             | RIndex3DIP          |
-| Right Hand - 8             | RIndex4FingerTip    |
-| Right Hand - 9             | RMiddle1Knuckles    |
-| Right Hand - 10            | RMiddle2PIP         |
-| Right Hand - 11            | RMiddle3DIP         |
-| Right Hand - 12            | RMiddle4FingerTip   |
-| Right Hand - 13            | RRing1Knuckles      |
-| Right Hand - 14            | RRing2PIP           |
-| Right Hand - 15            | RRing3DIP           |
-| Right Hand - 16            | RRing4FingerTip     |
-| Right Hand - 17            | RPinky1Knuckles     |
-| Right Hand - 18            | RPinky2PIP          |
-| Right Hand - 19            | RPinky3DIP          |
-| Right Hand - 20            | RPinky4FingerTip    |
+| OpenPose Joint             | Dataset Name                           | 
+| -------------------------- | ---------------------------------------|
+| Full Body -  0             | Neck                                   |
+| Full Body -  1             | MidHip                                 |
+| Full Body -  2             | LShoulder                              |
+| Full Body -  3             | LElbow                                 |
+| Full Body -  4             | LWrist                                 |
+| Full Body -  5             | RShoulder                              |
+| Full Body -  6             | RElbow                                 |
+| Full Body -  7             | RWrist                                 |
+| Right/Left Hand - 0        | RPalmBase / LPalmBase                  |
+| Right/Left Hand - 1        | RThumb1CMC / LThumb1CMC                |
+| Right/Left Hand - 2        | RThumb2Knuckles / LThumb2Knuckles      |
+| Right/Left Hand - 3        | RThumb3IP / LThumb3IP                  |
+| Right/Left Hand - 4        | RThumb4FingerTip / LThumb4FingerTip    |
+| Right/Left Hand - 5        | RIndex1Knuckles / LIndex1Knuckles      |
+| Right/Left Hand - 6        | RIndex2PIP / LIndex2PIP                |
+| Right/Left Hand - 7        | RIndex3DIP / LIndex3DIP                |
+| Right/Left Hand - 8        | RIndex4FingerTip / LIndex4FingerTip    |
+| Right/Left Hand - 9        | RMiddle1Knuckles / LMiddle1Knuckles    |
+| Right/Left Hand - 10       | RMiddle2PIP / LMiddle2PIP              |
+| Right/Left Hand - 11       | RMiddle3DIP / LMiddle3DIP              |
+| Right/Left Hand - 12       | RMiddle4FingerTip / LMiddle4FingerTip  |
+| Right/Left Hand - 13       | RRing1Knuckles / LRing1Knuckles        |
+| Right/Left Hand - 14       | RRing2PIP / LRing2PIP                  |
+| Right/Left Hand - 15       | RRing3DIP / LRing3DIP                  |
+| Right/Left Hand - 16       | RRing4FingerTip / LRing4FingerTip      |
+| Right/Left Hand - 17       | RPinky1Knuckles / LPinky1Knuckles      |
+| Right/Left Hand - 18       | RPinky2PIP / LPinky2PIP                |
+| Right/Left Hand - 19       | RPinky3DIP / LPinky3DIP                |
+| Right/Left Hand - 20       | RPinky4FingerTip / LPinky4FingerTip    |
 <br/>
 
 Apart from the **x** and **y** coordinates of a joint, OpenPose also outputs a probability (**prob**) as the confidence value of the estimated location of the joint. For each of the joint detections, the x- and y-coordinates and the probability are listed in the csv files. In case OpenPose fails to predict the position of a joint for a frame, the x,y and prob values of the joint are set to 0 for this frame. <br/>
@@ -105,8 +111,8 @@ e.g. the RShoulder.x column contains the x-coordinates of the RShoulder joint fo
 
 Finally, each file contains a "Time" column. In this column, the elapsed time from the first recorded frame of the movement is listed for each frame. For the first frame, the time is always set to 0. The elapsed time is measured in seconds. <br/><br/>
 
-In conclusion, each file contains 73 columns:
-- 3 columns (x,y,prob) for each of the 24 joints
+In conclusion, each file contains 151 columns:
+- 3 columns (x,y,prob) for each of the 50 joints
 - an extra "Time" column
 
 Each row corresponds to a frame of the recorded movement. 
