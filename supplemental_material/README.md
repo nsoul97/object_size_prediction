@@ -52,3 +52,18 @@ This directory contains the supplemental material of the paper "Object size pred
 <p align="center">
 <img src="assets/feature_importance_wsi.png"></img>
 </p>
+
+## Kinematic Variables
+    
+    Finger Apertures (TI-Ap, TM-Ap, IM-Ap) Kinematic Variables
+
+<p align="center">
+<img src="assets/apertures_kv.png"></img>
+</p>
+
+    Wrist x-/y- Pixel Coordinates Kinematic Variables
+
+<p align="center">
+<img src="assets/wrist_coords_kv.png"></img>
+</p>
+
