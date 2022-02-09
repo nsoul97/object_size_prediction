@@ -119,6 +119,9 @@ In conclusion, each file contains 151 columns:
 
 Each row corresponds to a frame of the recorded movement.
 
+## R-t-G Movements
+The onset and the end of the R-t-G part of the movements is provided in the ***RtG_onset_end.csv*** for each of the 715 movements of the dataset. If a frame <img src="https://latex.codecogs.com/svg.image?f" title="f" /> has
+<img src="https://latex.codecogs.com/svg.image?onset&space;\leq&space;Time(f)&space;\leq&space;end" title="onset \leq Time(f) \leq end" />, it is part of the R-t-G movement. The RtG movement onset and end are extracted as described in Section 3.2. of the paper.
 
 # Citation
 Please cite this paper in your publications if you use this dataset for your research:
