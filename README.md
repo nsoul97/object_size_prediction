@@ -34,7 +34,7 @@ optional arguments:
   -h, --help            Show this help message and exit.
 ```
 
-### Dataset Split Strategy
+## Dataset Split Strategy
 As specificied in the help menu above, the user has to select the dataset split strategy to be used. The dataset split strategies are the following:
 - all-in
 - one-out
@@ -54,7 +54,7 @@ In the previous cases, the script will output the results of all the methods:
 
 for each of all the following feature sets.
 
-### Feature Sets
+## Feature Sets
 The kinematic features that are engineered for each feature set are the following:
 <p align="center">
 <img src="assets/feature_sets.png" height=600></img>
@@ -68,7 +68,7 @@ python3 evaluate_ml.py one-out --feature_sets 5 3 1
 python3 evaluate_ml.py one-out --methods ExtraTrees RandomForest SVM 
 python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomForest SVM
 ```
-### Results Format
+## Results Format
 The results are printed in the following format:
 ```
 python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomForest SVM
@@ -76,35 +76,38 @@ python3 evaluate_ml.py all-in --feature_sets 5 3 1 --methods ExtraTrees RandomFo
 
 ```
 Dataset split strategy: 'all-in'
-feature set: 1 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture']
+feature set: 1 ['TI-Ap', 'TM-Ap', 'IM-Ap']
                      20          40          60          80          100
-ExtraTrees    77.1 (5.0)  82.4 (4.2)  82.8 (4.1)  88.4 (3.5)  92.0 (3.3)
-RandomForest  77.0 (4.8)  79.4 (4.2)  82.1 (3.9)  87.0 (3.0)  89.4 (3.2)
-SVM           67.4 (2.3)  69.0 (3.8)  73.4 (2.5)  75.7 (3.7)  82.7 (3.0)
+ExtraTrees    61.8 (4.9)  75.2 (4.6)  81.8 (2.9)  86.9 (3.9)  89.6 (1.9)
+RandomForest  60.7 (3.5)  74.8 (4.9)  80.1 (3.6)  85.7 (3.5)  87.8 (2.7)
+SVM           53.1 (4.0)  67.1 (5.9)  74.0 (4.8)  76.5 (3.5)  80.8 (3.7)
 
 Dataset split strategy: 'all-in'
-feature set: 3 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture', 'wrist x-std_dev', 'wrist y-std_dev']
+feature set: 3 ['TI-Ap', 'TM-Ap', 'IM-Ap', 'wrist x-std_dev', 'wrist y-std_dev']
                      20          40          60          80          100
-ExtraTrees    78.5 (2.9)  82.1 (4.3)  84.6 (3.4)  88.1 (2.4)  91.0 (2.3)
-RandomForest  78.9 (4.3)  80.1 (3.7)  81.4 (2.8)  86.4 (3.1)  88.5 (3.2)
-SVM           69.5 (5.2)  70.8 (2.9)  71.9 (4.8)  75.1 (5.1)  82.1 (4.5)
+ExtraTrees    64.8 (2.6)  80.1 (3.9)  84.8 (5.1)  86.3 (2.3)  91.6 (2.5)
+RandomForest  62.5 (3.4)  78.6 (3.0)  82.1 (4.7)  86.8 (3.7)  89.2 (2.9)
+SVM           56.8 (4.8)  70.3 (4.8)  74.3 (4.8)  76.6 (3.3)  80.4 (4.0)
 
 Dataset split strategy: 'all-in'
-feature set: 5 ['index-middle aperture', 'thumb-index aperture', 'thumb-middle aperture', 'wrist x-speed', 'wrist y-speed']
+feature set: 5 ['TI-Ap', 'TM-Ap', 'IM-Ap', 'wrist x-speed', 'wrist y-speed']
                      20          40          60          80          100
-ExtraTrees    77.3 (5.0)  80.8 (4.3)  83.6 (3.1)  87.4 (3.0)  90.8 (4.3)
-RandomForest  75.9 (6.1)  80.0 (2.0)  82.0 (3.6)  85.4 (5.1)  87.3 (4.4)
-SVM           36.2 (6.1)  42.9 (5.4)  49.0 (6.3)  53.3 (5.2)  56.2 (3.9)
+ExtraTrees    61.8 (5.4)  77.3 (4.4)  82.7 (4.5)  86.0 (3.6)  90.6 (2.8)
+RandomForest  60.7 (4.9)  75.6 (6.3)  81.1 (5.4)  84.7 (4.0)  89.2 (3.7)
+SVM           36.9 (4.7)  45.5 (8.1)  53.1 (6.6)  61.3 (4.3)  59.4 (6.2)
 ```
 
 For each method, movement completion percentage and feature set combination, the floating point numbers indicate the mean and the standard deviation of the model's accuracy rates in the k-fold evaluation scheme.
 
-<b>Note:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments unless a seed is provided. 
+<b>Note I:</b> The models' accuracy results will NOT be the same for two executions of the evaluation script with the same arguments unless a seed is provided. 
 
-### Plotting the results
-It is also possible to plot the accuracy results and the confusion matrices of the models interactively.
+<b>Note II:</b> The feature sets 1 and 2 are the workspace-independent (Ws-I) and the workspace-dependent (Ws-D) feature sets, respectively as presented in the paper.
+## Plotting the results
+It is possible to plot the accuracy results and the confusion matrices of the models interactively, as well as the feature importances of the Extra Trees model.
 
 Each confusion matrix has a 3x3 shape and was calculated as the average of k confusion matrices in the k-fold evaluation scheme. The floating point number outside the parentheses indicates the average accuracy for a (ground-truth label, predicted class) combination. On the other hand, the floating point number inside the parentheses indicates the standard deviation of the k accuracies for a (ground-truth label, predicted class) combination.
+
+The feature importances are calculated based on the Gini criterion for the Extra Trees model. 
 
 The user can choose the feature set and the method for which the plots are drawn interactively, using the arrow keys:
 - the 'up' and 'down' arrow keys are used to change the feature set
@@ -125,6 +128,10 @@ Initally the following figures are plotted:
 <img src="assets/confmtx_et_ex1.png"></img>
 </p>
 
+<p align="center">
+<img src="assets/feature_importance_ex1.png"></img>
+</p>
+
 After pressing the 'right' key, the confusion matrices' figure is updated:
 
 <p align="center">
@@ -141,11 +148,15 @@ After pressing the 'up' key, both the accuracy and the confusion matrices figure
 <img src="assets/confmtx_rf_ex3.png"></img>
 </p>
 
+<p align="center">
+<img src="assets/feature_importance_ex3.png"></img>
+</p>
+
 The program terminates when the user closes one of the figures.
 
 ## How to reproduce the results of the paper?
 Seed the random generator with 0.
 ```
-python3 evaluate_ml.py all-in --seed 0
-python3 evaluate_ml.py one-out --seed 0
+python3 evaluate_ml.py all-in --methods ExtraTrees --feature_set 1 2  --seed 0
+python3 evaluate_ml.py one-out --methods SVM --feature_set 1 2 --seed 0
 ```
