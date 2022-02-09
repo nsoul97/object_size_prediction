@@ -143,6 +143,7 @@ def main():
 
     strategy, fs_ids, methods, plot, seed = parse_args()
 
+    rng = np.random.default_rng(seed)
     data = read_dataset(joints=["RWrist", "RThumb4FingerTip", "RIndex4FingerTip", "RMiddle4FingerTip"]) 
     preprocess_dataset(data, tail=WINDOW-1)
     feature_engineering(data)
@@ -154,7 +155,7 @@ def main():
 
     for fs_id in fs_ids:
         fs_names = [''] + FS_NAMES[fs_id]
-        for train_set_names, test_set_names in setup_train_test_split(data, strategy, seed):
+        for train_set_names, test_set_names in setup_train_test_split(data, strategy, rng):
             for mov_completion_perc in MOV_COMPLETION:
 
                 train_set = setup_fvecs_labels(train_set_names, mov_completion_perc, partial_data, fs_names)
