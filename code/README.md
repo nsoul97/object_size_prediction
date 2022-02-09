@@ -163,3 +163,5 @@ Seed the random generator with 0.
 python3 evaluate_ml.py all-in --methods ExtraTrees --feature_set 1 2  --seed 0
 python3 evaluate_ml.py one-out --methods SVM --feature_set 1 2 --seed 0
 ```
+
+<b>Note:</b> The results may vary (slightly) across different OSs, since the the *random_state* parameter of Scikit-learn produces deterministic results on a specific OS, but does not produce the same results on different OSs. Check also [here](https://github.com/lmcinnes/umap/issues/153).
