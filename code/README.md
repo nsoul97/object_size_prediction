@@ -11,6 +11,8 @@ This repository has also the following package dependencies:
 - matplotlib
 - scikit_learn
 
+The versions of the packages are in the ***requirements.txt*** file.
+
 ## How to run the evaluation script ?
 In order to print the help menu of the evaluation script, run the following command:
 ```python
