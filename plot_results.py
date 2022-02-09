@@ -78,7 +78,7 @@ def update_featimp_plot(feat_imp_dict, strategy, fsid):
         axes3[k].set_title(f"{MOV_COMPLETION[k]}%", fontsize=16)
         axes3[k].tick_params(left=False, bottom=False)
         axes3[k].set_yticklabels(axes3[k].get_yticklabels(), fontsize = 14)
-        axes3[k].set_xticklabels(axes3[k].get_xticklabels(), rotation = 80, fontsize = 14)
+        axes3[k].set_xticklabels(axes3[k].get_xticklabels(), rotation = 90, fontsize = 14)
 
 
 
@@ -131,9 +131,9 @@ def update_confmtx_plot(conf_mtx_dict, strategy, fsid, method):
             sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, annot_kws={"size":18}, cbar=False, xticklabels=LABELS, yticklabels=False, ax=axes2[k], vmin=0.0, vmax=1.0)
         else:
             sn.heatmap(conf_mtx_dict[fsid][t][method][0], cmap='Oranges', annot=annotations, fmt="", linecolor='w', linewidths=0.5, annot_kws={"size":18}, cbar=False, xticklabels=LABELS, yticklabels=LABELS, ax=axes2[k], vmin=0.0, vmax=1.0)
-            axes2[k].set_yticklabels(axes2[k].get_yticklabels(), rotation = 25, fontsize = 14)
+            axes2[k].set_yticklabels(axes2[k].get_yticklabels(), rotation = 0, fontsize = 14)
                     
-        axes2[k].set_xticklabels(axes2[k].get_xticklabels(), rotation = 10, fontsize = 14)
+        axes2[k].set_xticklabels(axes2[k].get_xticklabels(), rotation = 0, fontsize = 14)
         axes2[k].set_title(f"{MOV_COMPLETION[k]}%", fontsize=16)
         axes2[k].tick_params(left=False, bottom=False)
 

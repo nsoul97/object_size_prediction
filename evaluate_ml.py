@@ -34,7 +34,7 @@ def parse_args():
                         help="The methods that will be used in order to train and evaluate the model.")
 
     parser.add_argument("--plot", action='store_true',
-                        help='Plot the accuracries of the different methods superimposed and the confusion matrix of each method.')
+                        help='Plot the accuracries of the different methods superimposed, the confusion matrices of each method and the feature importances of the Extra Trees model (if ET is one of the given models).')
     
     parser.add_argument("--seed", type=int,
                         help="A seed to initialize the random generator.")
@@ -178,6 +178,8 @@ def main():
                 if method == "ExtraTrees":
                     feat_imp_dict[fs_id][mov_completion_perc] = (np.average(feat_imp_dict[fs_id][mov_completion_perc], axis=0), np.std(feat_imp_dict[fs_id][mov_completion_perc], axis=0))
 
+    
+    print_results(acc_dict, strategy, fs_ids, methods)
     if plot: plot_results(acc_dict, conf_mtx_dict, feat_imp_dict, strategy, fs_ids, methods)
 
 if __name__ == '__main__':

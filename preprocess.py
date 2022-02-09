@@ -68,7 +68,7 @@ def cut_movement( mov_data, tail, head):
         head (int): An integer that indicates how many conseutive frames after the grasping phase to return. If negative, the value defaults to 0.
 
     Returns:
-        mov_data [pd.DataFrame]: A DataFrame containing the skeletal data of the grasping phase of the given movement and the skeletal data of the given number of frames before and after the 
+        cut_data [pd.DataFrame]: A DataFrame containing the skeletal data of the grasping phase of the given movement and the skeletal data of the given number of frames before and after the 
                                  grasping movement.
     """
 
@@ -90,7 +90,8 @@ def cut_movement( mov_data, tail, head):
     start_ind = max(0, start_ind - max(0,tail))                                             # Add the given number of frames before the grasping phase.
     end_ind = end_ind + max(0, head)                                                        # Add the given number of frames before the grasping phase.
 
-    return mov_data.iloc[start_ind:end_ind]
+    cut_data = mov_data.iloc[start_ind:end_ind]                                             # Identify the reach-to-grasp movement.
+    return cut_data
 
 def preprocess_dataset(data, tail=0, head=0):
     """ Preprocess all the movements of the dataset in order to identify their grasping phase. Update the data dictionary, so that it contains a movement's name as key and a pd.DataFrame with the
