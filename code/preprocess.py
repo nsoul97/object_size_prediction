@@ -5,11 +5,11 @@ import numpy as np
 from config import WINDOW, PROB_THRESHOLD, DIST_THRESHOLD, START_STD, STOP_STD
 
 
-def read_dataset(path="../dataset/data/", joints=None, attr=None):
+def read_dataset(path=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../dataset/data/"), joints=None, attr=None):
     """ Read all the movements of the dataset and store them in a dictionary. Choose which joints to read for each movements and which attributes to read for each joint.
 
     Args:
-        path (str, optional): The path of the movement dataset. Defaults to "dataset/data/".
+        path (str, optional): The path of the movement dataset. Defaults to "dataset/data" directory.
         joints (list, optional): The joints (RShoulder, RElbow, ..., RPinky4FingerTip) of interest for all the movements. Defaults to None. In this case all 24 joints are used for all the movements.
         attr (list, optional): The attributes (x,y,prob) of interest for all the joints. Defaults to None. In this case all 3 attributes are used for all the joints.
 
