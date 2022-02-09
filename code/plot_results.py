@@ -80,6 +80,9 @@ def update_featimp_plot(feat_imp_dict, strategy, fsid):
         axes3[k].set_yticklabels(axes3[k].get_yticklabels(), fontsize = 14)
         axes3[k].set_xticklabels(axes3[k].get_xticklabels(), rotation = 90, fontsize = 14)
 
+        axes3[0].set_ylabel('Descriptive Variables', fontsize=20)
+        axes3[2].set_xlabel('Kinematic Variables', fontsize=20)
+
 
 
 def update_accuracies_plot(acc_dict, strategy, fsid, methods):

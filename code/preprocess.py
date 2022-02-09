@@ -5,7 +5,7 @@ import numpy as np
 from config import WINDOW, PROB_THRESHOLD, DIST_THRESHOLD, START_STD, STOP_STD
 
 
-def read_dataset(path="dataset/data/", joints=None, attr=None):
+def read_dataset(path="../dataset/data/", joints=None, attr=None):
     """ Read all the movements of the dataset and store them in a dictionary. Choose which joints to read for each movements and which attributes to read for each joint.
 
     Args:
