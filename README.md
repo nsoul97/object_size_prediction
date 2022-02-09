@@ -1,4 +1,9 @@
 # Object size prediction from hand movement using a single RGB sensor
+
+<p align="center">
+<img src="teaser_movement.gif" width=400></img>
+</p>
+
 This is the official repository of the paper "Object size prediction from hand movement using a single RGB sensor". It contains the [implementation](code/), the [dataset](dataset/) and the [supplemental material](supplemental_material/) of our work.
 
 If you find this useful, please cite:
