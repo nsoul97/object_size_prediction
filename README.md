@@ -160,3 +160,15 @@ Seed the random generator with 0.
 python3 evaluate_ml.py all-in --methods ExtraTrees --feature_set 1 2  --seed 0
 python3 evaluate_ml.py one-out --methods SVM --feature_set 1 2 --seed 0
 ```
+
+## Citation
+Please cite this paper in your publications if you find this work useful:
+
+```
+@inproceedings{dagioglou22obj,
+      author = {Maria Dagioglou and Nikolaos Soulounias and Theodoros Giannakopoulos},
+      booktitle = {Human-Computer Interaction},
+      title = {Object Size Prediction from Hand Movement Using a Single RGB Sensor},
+      year = {2022}
+    }
+```
