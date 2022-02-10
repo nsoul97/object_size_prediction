@@ -1,5 +1,6 @@
 # Dataset Description
 
+During the data collection process, each participant reached, grasped, picked up, and moved a cubic object. The movements were recorded with an ASUS Xtion pro RGB-D camera. The raw RGB information was used to track the human wrist  and human hand joints' positions via [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) [Cao, Z., Hidalgo Martinez, G., Simon, T., Wei, S., Sheikh, Y.A.: OpenPose: Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields. IEEE Transactions on Pattern Analysis and Machine Intelligence]. The publicly available dataset contains the OpenPose skeletal data for each frame of the movements. The data collection process is described in more detail in Section 3.1. of the paper. 
 ## Participants
 
 The dataset's movements were performed by **8 participants**:
@@ -37,9 +38,9 @@ Each participant reached for each of the small, the medium and the large object 
 
 ## Dataset Organization
 
-The files are organized in eight directories <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, with <img src="https://latex.codecogs.com/svg.image?i=1,\dots,8" title="i=1,\dots,8" />, one for each participant. 
+The files are organized in eight directories *Pi*, with *i=1,...,8*, one for each participant. 
 
-The name of each  file indicates the **participant's pseudonym** <img src="https://latex.codecogs.com/svg.image?P_i" title="P_i" />, the **object's size** (*S, M, L*) and the **ordinal number** of the participant's movement towards the object (*from 01 to 30*).
+The name of each  file indicates the **participant's pseudonym** *Pi*, the **object's size** (*S, M, L*) and the **ordinal number** of the participant's movement towards the object (*from 01 to 30*).
 
 e.g. P4/P4_L_09.csv is the 9th movement of the participant P4 towards the large object.
 
@@ -120,8 +121,7 @@ In conclusion, each file contains 151 columns:
 Each row corresponds to a frame of the recorded movement.
 
 ## R-t-G Movements
-The onset and the end of the R-t-G part of the movements is provided in the ***RtG_onset_end.csv*** for each of the 715 movements of the dataset. If a frame <img src="https://latex.codecogs.com/svg.image?f" title="f" /> has
-<img src="https://latex.codecogs.com/svg.image?onset&space;\leq&space;Time(f)&space;\leq&space;end" title="onset \leq Time(f) \leq end" />, it is part of the R-t-G movement. The RtG movement onset and end are extracted as described in Section 3.2. of the paper.
+The onset and the end of the R-t-G part of the movements is provided in the ***RtG_onset_end.csv*** for each of the 715 movements of the dataset. If the timestamp of a frame  is greater than or equal to the R-t-G movement onset and less than or equal to the R-t-G movement end, then this frame is part of the R-t-G movement. The R-t-G movement onset and end are extracted as described in Section 3.2. of the paper.
 
 # Citation
 Please cite this paper in your publications if you use this dataset for your research:
@@ -129,7 +129,8 @@ Please cite this paper in your publications if you use this dataset for your res
 ```
 @inproceedings{dagioglou22obj,
       author = {Maria Dagioglou and Nikolaos Soulounias and Theodoros Giannakopoulos},
-      booktitle = {Human-Computer Interaction},
+      booktitle = {24th International Conference on Human-Computer Interaction},
+      organization={Springer},
       title = {Object Size Prediction from Hand Movement Using a Single RGB Sensor},
       year = {2022}
     }

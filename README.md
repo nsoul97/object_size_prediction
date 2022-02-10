@@ -10,7 +10,8 @@ If you find this useful, please cite:
 ```
 @inproceedings{dagioglou22obj,
       author = {Maria Dagioglou and Nikolaos Soulounias and Theodoros Giannakopoulos},
-      booktitle = {Human-Computer Interaction},
+      booktitle = {24th International Conference on Human-Computer Interaction},
+      organization={Springer},
       title = {Object Size Prediction from Hand Movement Using a Single RGB Sensor},
       year = {2022}
     }
